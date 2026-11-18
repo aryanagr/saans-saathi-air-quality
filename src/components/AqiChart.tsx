@@ -1,38 +1,52 @@
-import { HOURLY_AQI } from '../data/demo';
+interface ForecastPoint { time: string; aqi: number }
 
-export function AqiChart() {
-  const min = 250;
-  const max = 350;
-  const points = HOURLY_AQI.map((entry, index) => {
-    const x = (index / (HOURLY_AQI.length - 1)) * 100;
-    const y = 88 - ((entry.value - min) / (max - min)) * 68;
-    return `${x},${y}`;
-  }).join(' ');
+interface AqiChartProps {
+  forecast?: ForecastPoint[];
+  cleanestWindow?: ForecastPoint | null;
+  isLive: boolean;
+}
+
+function formatHour(value: string) {
+  const hour = Number(value.slice(11, 13));
+  if (hour === 0) return '12 am';
+  if (hour === 12) return '12 pm';
+  return hour > 12 ? `${hour - 12} pm` : `${hour} am`;
+}
+
+export function AqiChart({ forecast = [], cleanestWindow, isLive }: AqiChartProps) {
+  const visible = forecast.filter((_, index) => index % 4 === 0).slice(0, 6);
+  const values = visible.map((entry) => entry.aqi);
+  const min = Math.min(...values, 0);
+  const max = Math.max(...values, 100);
+  const range = Math.max(1, max - min);
+  const points = visible.map((entry, index) => {
+    const x = visible.length === 1 ? 50 : (index / (visible.length - 1)) * 100;
+    const y = 88 - ((entry.aqi - min) / range) * 68;
+    return { ...entry, x, y };
+  });
 
   return (
     <section className="chart-card" aria-labelledby="forecast-title">
       <div className="section-heading compact">
         <div>
-          <p className="eyebrow">Next 12 hours</p>
-          <h2 id="forecast-title">A cleaner window is likely at 3 pm</h2>
+          <p className="eyebrow">Next 24 hours</p>
+          <h2 id="forecast-title">{cleanestWindow ? `Lowest daytime AQI near ${formatHour(cleanestWindow.time)}` : 'Hourly outlook unavailable'}</h2>
+          {cleanestWindow && <p>Modeled AQI {cleanestWindow.aqi}. Recheck conditions before changing outdoor plans.</p>}
         </div>
-        <span className="data-badge">Demo forecast</span>
+        <span className="data-badge">{isLive ? 'Live model forecast' : 'Forecast unavailable'}</span>
       </div>
-      <div className="chart-wrap">
-        <svg className="aqi-chart" viewBox="0 0 100 100" role="img" aria-label="AQI forecast decreases from 338 at 6 am to 284 at 3 pm, then rises to 329 at 9 pm">
-          <line x1="0" y1="88" x2="100" y2="88" className="chart-grid" />
-          <line x1="0" y1="54" x2="100" y2="54" className="chart-grid" />
-          <line x1="0" y1="20" x2="100" y2="20" className="chart-grid" />
-          <polyline points={points} className="chart-line" />
-          {points.split(' ').map((point, index) => {
-            const [cx, cy] = point.split(',');
-            return <circle key={HOURLY_AQI[index].time} cx={cx} cy={cy} r="1.8" className="chart-dot" />;
-          })}
-        </svg>
-        <div className="chart-labels" aria-hidden="true">
-          {HOURLY_AQI.map((entry) => <span key={entry.time}>{entry.time}</span>)}
+      {points.length > 1 ? (
+        <div className="chart-wrap">
+          <svg className="aqi-chart" viewBox="0 0 100 100" role="img" aria-label={`Modeled AQI ranges from ${Math.min(...values)} to ${Math.max(...values)} over the next 24 hours`}>
+            <line x1="0" y1="88" x2="100" y2="88" className="chart-grid" />
+            <line x1="0" y1="54" x2="100" y2="54" className="chart-grid" />
+            <line x1="0" y1="20" x2="100" y2="20" className="chart-grid" />
+            <polyline points={points.map(({ x, y }) => `${x},${y}`).join(' ')} className="chart-line" />
+            {points.map(({ time, aqi, x, y }) => <circle key={time} cx={x} cy={y} r="1.8" className="chart-dot"><title>{formatHour(time)}: AQI {aqi}</title></circle>)}
+          </svg>
+          <div className="chart-labels" aria-hidden="true">{points.map(({ time }) => <span key={time}>{formatHour(time)}</span>)}</div>
         </div>
-      </div>
+      ) : <p className="chart-empty">Current guidance remains available. Try another city or refresh shortly.</p>}
     </section>
   );
 }

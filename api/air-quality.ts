@@ -10,6 +10,17 @@ type CurrentAir = {
   us_aqi_carbon_monoxide?: number; us_aqi_sulphur_dioxide?: number; us_aqi_ozone?: number;
 };
 
+type HourlyAir = { time?: string[]; us_aqi?: Array<number | null> };
+
+export function findCleanestWindow(times: string[] = [], values: Array<number | null> = []) {
+  const candidates = times.map((time, index) => ({ time, value: values[index] }))
+    .filter((entry): entry is { time: string; value: number } => {
+      const hour = Number(entry.time.slice(11, 13));
+      return Number.isFinite(entry.value) && hour >= 6 && hour <= 20;
+    });
+  return candidates.sort((a, b) => a.value - b.value)[0] ?? null;
+}
+
 export function validateCity(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   const city = value.trim().replace(/\s+/g, ' ');
@@ -71,16 +82,23 @@ export default async function handler(request: IncomingMessage, response: Server
     airUrl.searchParams.set('latitude', String(location.latitude));
     airUrl.searchParams.set('longitude', String(location.longitude));
     airUrl.searchParams.set('timezone', 'GMT');
+    airUrl.searchParams.set('forecast_hours', '24');
+    airUrl.searchParams.set('hourly', 'us_aqi');
     airUrl.searchParams.set('current', [
       'us_aqi', 'pm2_5', 'pm10', 'carbon_monoxide', 'nitrogen_dioxide', 'sulphur_dioxide', 'ozone',
       'us_aqi_pm2_5', 'us_aqi_pm10', 'us_aqi_nitrogen_dioxide', 'us_aqi_carbon_monoxide',
       'us_aqi_sulphur_dioxide', 'us_aqi_ozone',
     ].join(','));
-    const air = await fetchJson<{ current?: CurrentAir }>(airUrl.toString());
+    const air = await fetchJson<{ current?: CurrentAir; hourly?: HourlyAir }>(airUrl.toString());
     const current = air.current;
     if (!current || !Number.isFinite(current.us_aqi)) return sendJson(response, 502, { error: 'No current AQI is available for this city.' });
 
     const aqi = Math.round(current.us_aqi as number);
+    const forecast = (air.hourly?.time ?? []).map((time, index) => ({
+      time,
+      aqi: air.hourly?.us_aqi?.[index] == null ? null : Math.round(air.hourly.us_aqi[index] as number),
+    })).filter((entry): entry is { time: string; aqi: number } => entry.aqi !== null);
+    const cleanest = findCleanestWindow(air.hourly?.time, air.hourly?.us_aqi);
     response.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=1800');
     return sendJson(response, 200, {
       city: [location.name, location.admin1, location.country].filter(Boolean).join(', '),
@@ -91,6 +109,8 @@ export default async function handler(request: IncomingMessage, response: Server
       indexName: 'US AQI (modeled)',
       updatedAt: current.time ? `${current.time}:00Z` : new Date().toISOString(),
       source: 'Open-Meteo / CAMS',
+      forecast,
+      cleanestWindow: cleanest ? { time: cleanest.time, aqi: Math.round(cleanest.value) } : null,
       pollutants: { pm2_5: current.pm2_5 ?? null, pm10: current.pm10 ?? null, nitrogenDioxide: current.nitrogen_dioxide ?? null, ozone: current.ozone ?? null },
     });
   } catch (error) {

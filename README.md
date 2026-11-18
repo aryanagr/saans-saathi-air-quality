@@ -17,6 +17,9 @@ The MVP combines deterministic safety rules with contextual personalisation. AQI
 - Interactive daily checklist and progress summary
 - Illustrative exposure and emissions impact estimates with transparent caveats
 - Key-free modeled current AQI search for any city through Open-Meteo, with a labelled demo fallback
+- Live 24-hour modeled AQI outlook and cleanest practical daytime window
+- Pollutant transparency for PM2.5, PM10, ozone, and the dominant pollutant
+- Gemini-powered contextual Q&A with deterministic safety fallback
 - Responsive UI with keyboard support, visible focus, semantic HTML, and reduced-motion support
 - Unit and UI tests for decision logic and critical interactions
 
@@ -32,6 +35,16 @@ Then open the URL printed by Vite.
 ### Live city data
 
 No API key or account is required. The server function uses Open-Meteo's geocoding and air-quality APIs, caches responses for 15 minutes, and falls back to illustrative readings when the provider is unavailable. The free service is intended for non-commercial use and requires attribution.
+
+### Enable Gemini explanations
+
+The assistant works without a key using deterministic guided answers. To enable generated explanations, create a free Google AI Studio key and add it only to the server environment:
+
+```bash
+GEMINI_API_KEY=your_key_here
+```
+
+The model explains verified context; it does not control safety thresholds or recommendation priority.
 
 ## Verify
 
@@ -50,6 +63,8 @@ npm run build
 5. The interface explains the direct benefit and urgency of each action.
 
 The domain logic lives in `src/domain/airQuality.ts`, separate from React and data access. The server-side `api/air-quality.ts` function normalizes provider data before the browser receives it.
+
+See [architecture](docs/ARCHITECTURE.md), [security and responsible AI](docs/SECURITY.md), and [evaluation mapping](docs/EVALUATION.md) for submission evidence.
 
 ## Assumptions and limitations
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Activity, ArrowRight, Bus, Check, HeartPulse, Home, Leaf, MapPin, Settings2, ShieldCheck, Sparkles, Wind } from 'lucide-react';
 import { AqiChart } from './components/AqiChart';
+import { AssistantPanel } from './components/AssistantPanel';
 import { ProfilePanel } from './components/ProfilePanel';
 import { fetchLiveAirQuality, type LiveAirQuality } from './data/airQualityClient';
 import { CITY_AQI, DEFAULT_PROFILE } from './data/demo';
@@ -135,6 +136,14 @@ export default function App() {
         </section>
 
         <div className="content-wrap">
+          <section className="reading-strip" aria-label="Current pollutant details">
+            <div><span>Dominant pollutant</span><strong>{liveReading?.dominantPollutant ?? 'Not available'}</strong></div>
+            <div><span>PM2.5</span><strong>{liveReading?.pollutants.pm2_5 != null ? `${liveReading.pollutants.pm2_5} µg/m³` : '—'}</strong></div>
+            <div><span>PM10</span><strong>{liveReading?.pollutants.pm10 != null ? `${liveReading.pollutants.pm10} µg/m³` : '—'}</strong></div>
+            <div><span>Ozone</span><strong>{liveReading?.pollutants.ozone != null ? `${liveReading.pollutants.ozone} µg/m³` : '—'}</strong></div>
+            <p>Modeled concentrations can differ from nearby monitoring stations.</p>
+          </section>
+
           <section id="plan" className="plan-section" aria-labelledby="plan-title">
             <div className="section-heading">
               <div>
@@ -169,7 +178,16 @@ export default function App() {
             </div>
           </section>
 
-          <AqiChart />
+          <AqiChart forecast={liveReading?.forecast} cleanestWindow={liveReading?.cleanestWindow} isLive={liveStatus === 'live'} />
+
+          <AssistantPanel context={{
+            city: liveReading?.city ?? profile.city,
+            aqi,
+            category: plan.label,
+            dominantPollutant: liveReading?.dominantPollutant ?? null,
+            cleanestWindow: liveReading?.cleanestWindow ?? null,
+            profile,
+          }} />
 
           <section id="impact" className="impact-section" aria-labelledby="impact-title">
             <div className="section-heading compact">

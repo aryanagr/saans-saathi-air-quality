@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getDominantPollutant, getUsAqiCategory, validateCity } from './air-quality';
+import { findCleanestWindow, getDominantPollutant, getUsAqiCategory, validateCity } from './air-quality';
 
 describe('live air-quality API helpers', () => {
   it('normalizes safe city names', () => {
@@ -21,5 +21,12 @@ describe('live air-quality API helpers', () => {
 
   it('finds the component driving the overall AQI', () => {
     expect(getDominantPollutant({ us_aqi_pm2_5: 164, us_aqi_ozone: 72, us_aqi_pm10: 91 })).toBe('PM2.5');
+  });
+
+  it('selects the lowest daytime forecast value', () => {
+    expect(findCleanestWindow(
+      ['2026-11-18T04:00', '2026-11-18T09:00', '2026-11-18T15:00'],
+      [30, 82, 61],
+    )).toEqual({ time: '2026-11-18T15:00', value: 61 });
   });
 });

@@ -7,6 +7,9 @@ export interface LiveAirQuality {
   indexName: string;
   updatedAt: string;
   source: string;
+  forecast: Array<{ time: string; aqi: number }>;
+  cleanestWindow: { time: string; aqi: number } | null;
+  pollutants: { pm2_5: number | null; pm10: number | null; nitrogenDioxide: number | null; ozone: number | null };
 }
 
 export async function fetchLiveAirQuality(city: string, signal?: AbortSignal): Promise<LiveAirQuality> {
