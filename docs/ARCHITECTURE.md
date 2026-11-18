@@ -7,7 +7,7 @@ Browser
   │    ├─ Open-Meteo geocoding
   │    └─ Open-Meteo / CAMS current + 24-hour forecast
   └─ POST /api/assistant
-       └─ Gemini 2.5 Flash-Lite when GEMINI_API_KEY is configured
+       └─ Gemini 3.5 Flash-Lite when GEMINI_API_KEY is configured
 
 Verified AQI + household context
   └─ deterministic safety engine

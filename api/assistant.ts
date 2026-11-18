@@ -34,7 +34,7 @@ export default async function handler(request: IncomingMessage, response: Server
       return sendJson(response, 400, { error: 'Ask a question between 1 and 500 characters.' });
     }
     const context = JSON.stringify(input.context ?? {}).slice(0, 2_500);
-    const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent', {
+    const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent', {
       method: 'POST',
       signal: AbortSignal.timeout(12_000),
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },

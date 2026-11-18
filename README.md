@@ -38,7 +38,7 @@ No API key or account is required. The server function uses Open-Meteo's geocodi
 
 ### Enable Gemini explanations
 
-The assistant works without a key using deterministic guided answers. To enable generated explanations, create a free Google AI Studio key and add it only to the server environment:
+The assistant works without a key using deterministic guided answers. To enable Gemini 3.5 Flash-Lite explanations, create a free Google AI Studio key and add it only to the server environment:
 
 ```bash
 GEMINI_API_KEY=your_key_here
