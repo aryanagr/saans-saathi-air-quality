@@ -15,12 +15,3 @@ export const CITY_AQI: Record<string, number> = {
   Kolkata: 218,
   Lucknow: 276,
 };
-
-export const HOURLY_AQI = [
-  { time: '6 am', value: 338 },
-  { time: '9 am', value: 326 },
-  { time: '12 pm', value: 312 },
-  { time: '3 pm', value: 284 },
-  { time: '6 pm', value: 301 },
-  { time: '9 pm', value: 329 },
-];

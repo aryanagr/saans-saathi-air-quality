@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { MessageCircle, Send, Sparkles } from 'lucide-react';
 import { askAssistant, getGuidedAnswer, type AssistantContext } from '../data/assistantClient';
@@ -15,6 +15,8 @@ export function AssistantPanel({ context }: { context: AssistantContext }) {
   const [mode, setMode] = useState<'gemini' | 'guided' | null>(null);
   const [loading, setLoading] = useState(false);
   const controllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => controllerRef.current?.abort(), []);
 
   const submit = async (value: string) => {
     const nextQuestion = value.trim();
@@ -50,14 +52,14 @@ export function AssistantPanel({ context }: { context: AssistantContext }) {
         <div><p className="eyebrow"><Sparkles aria-hidden="true" /> Ask about today</p><h2 id="assistant-title">Talk to Saans Saathi</h2><p>Get a short answer grounded in your city, AQI and household profile.</p></div>
       </div>
       <div className="quick-questions" aria-label="Suggested questions">
-        {QUICK_QUESTIONS.map((item) => <button type="button" key={item} onClick={() => void submit(item)}>{item}</button>)}
+        {QUICK_QUESTIONS.map((item) => <button type="button" key={item} disabled={loading} onClick={() => void submit(item)}>{item}</button>)}
       </div>
       <form className="assistant-form" onSubmit={onSubmit}>
         <label htmlFor="assistant-question">Your air-quality question</label>
         <div><input id="assistant-question" value={question} maxLength={500} onChange={(event) => setQuestion(event.target.value)} placeholder="For example: Is an evening walk safe?" /><button type="submit" disabled={loading || !question.trim()}><Send aria-hidden="true" />{loading ? 'Thinking…' : 'Ask'}</button></div>
       </form>
       <div className="assistant-answer" aria-live="polite" aria-busy={loading}>
-        {loading ? <p>Checking your current context…</p> : answer ? <><p>{answer}</p><span>{mode === 'gemini' ? 'Gemini explanation • safety rules remain authoritative' : 'Guided safety answer • Gemini is not configured'}</span></> : <p>Choose a suggested question or ask your own.</p>}
+        {loading ? <p>Checking your current context…</p> : answer ? <><p>{answer}</p><span>{mode === 'gemini' ? 'Gemini explanation • safety rules remain authoritative' : 'Guided safety answer • live AI unavailable'}</span></> : <p>Choose a suggested question or ask your own.</p>}
       </div>
     </section>
   );

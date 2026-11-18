@@ -27,4 +27,13 @@ describe('AssistantPanel', () => {
     await waitFor(() => expect(screen.getByText('Keep activity indoors for now.')).toBeInTheDocument());
     expect(screen.getByText(/gemini explanation/i)).toBeInTheDocument();
   });
+
+  it('prevents duplicate suggested requests while an answer is loading', () => {
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(() => new Promise(() => undefined)));
+    render(<AssistantPanel context={context} />);
+    fireEvent.click(screen.getByRole('button', { name: /can my child play outside/i }));
+
+    expect(screen.getByRole('button', { name: /when should i open the windows/i })).toBeDisabled();
+    expect(screen.getByText(/checking your current context/i)).toBeInTheDocument();
+  });
 });

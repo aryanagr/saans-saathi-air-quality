@@ -59,8 +59,6 @@ export default function App() {
     if (city.length < 2) return;
     const controller = new AbortController();
     const timer = window.setTimeout(() => {
-      setLiveStatus('loading');
-      setLiveMessage('Checking current conditions…');
       fetchLiveAirQuality(city, controller.signal)
         .then((reading) => {
           setLiveReading(reading);
@@ -107,6 +105,17 @@ export default function App() {
   const closeProfile = () => {
     setProfileOpen(false);
     window.requestAnimationFrame(() => profileTrigger.current?.focus());
+  };
+
+  const updateProfile = (nextProfile: HouseholdProfile) => {
+    if (nextProfile.city.trim() !== profile.city.trim()) {
+      setLiveReading(null);
+      setLiveStatus('loading');
+      setLiveMessage(nextProfile.city.trim().length < 2
+        ? 'Enter at least 2 characters to check current conditions.'
+        : 'Checking current conditions…');
+    }
+    setProfile(nextProfile);
   };
 
   const toggleCompleted = (id: string) => {
@@ -231,7 +240,7 @@ export default function App() {
 
       <footer><p><strong>Saans Saathi</strong> turns air-quality data into practical daily choices.</p><p>{liveStatus === 'live' ? <>Modeled air-quality data by <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a> and CAMS • US AQI</> : 'Fallback demo data • US AQI scale'}</p></footer>
 
-      <ProfilePanel open={profileOpen} profile={profile} onChange={setProfile} onClose={closeProfile} />
+      <ProfilePanel open={profileOpen} profile={profile} onChange={updateProfile} onClose={closeProfile} />
     </div>
   );
 }

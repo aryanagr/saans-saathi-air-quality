@@ -20,6 +20,7 @@ Verified AQI + household context
 
 - The safety engine is deterministic and independently tested. Generated text cannot change AQI thresholds or suppress urgent-care guidance.
 - Provider responses are normalized at the server boundary, keeping the UI independent from Open-Meteo's response shape.
+- Normalized responses are validated again at the browser boundary, including nested forecast and pollutant values, before entering application state.
 - The application labels Open-Meteo/CAMS readings as modeled conditions rather than nearby sensor measurements.
 - The profile remains in browser storage. Only the minimum context required for an assistant question is sent to the assistant endpoint.
 - The application remains useful if either external provider fails: current actions fall back to labelled demo data and assistant questions fall back to deterministic guidance.

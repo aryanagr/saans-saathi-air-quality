@@ -14,6 +14,8 @@ export function ProfilePanel({ open, profile, onChange, onClose }: ProfilePanelP
 
   useEffect(() => {
     if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     const dialog = dialogRef.current;
     const focusable = dialog?.querySelectorAll<HTMLElement>('button, select, input, [href], [tabindex]:not([tabindex="-1"])');
     focusable?.[0]?.focus();
@@ -32,7 +34,10 @@ export function ProfilePanel({ open, profile, onChange, onClose }: ProfilePanelP
     };
 
     document.addEventListener('keydown', containFocus);
-    return () => document.removeEventListener('keydown', containFocus);
+    return () => {
+      document.removeEventListener('keydown', containFocus);
+      document.body.style.overflow = previousOverflow;
+    };
   }, [open]);
 
   if (!open) return null;
@@ -56,11 +61,11 @@ export function ProfilePanel({ open, profile, onChange, onClose }: ProfilePanelP
 
         <div className="field">
           <label htmlFor="city">Location</label>
-          <input id="city" list="city-suggestions" value={profile.city} maxLength={80} autoComplete="address-level2" onChange={(event) => update('city', event.target.value)} />
+          <input id="city" list="city-suggestions" value={profile.city} maxLength={80} autoComplete="address-level2" aria-describedby="city-help" onChange={(event) => update('city', event.target.value)} />
           <datalist id="city-suggestions">
             {['New Delhi', 'Mumbai', 'Bengaluru', 'Kolkata', 'Lucknow', 'Chennai', 'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Chandigarh', 'Gurugram', 'Noida'].map((city) => <option key={city} value={city} />)}
           </datalist>
-          <p className="field-help">Search any city. Live AQI refreshes after you finish typing.</p>
+          <p className="field-help" id="city-help">Search any city. Live AQI refreshes after you finish typing.</p>
         </div>
 
         <div className="field">

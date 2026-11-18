@@ -18,7 +18,7 @@ The MVP combines deterministic safety rules with contextual personalisation. AQI
 - Illustrative exposure and emissions impact estimates with transparent caveats
 - Key-free modeled current AQI search for any city through Open-Meteo, with a labelled demo fallback
 - Live 24-hour modeled AQI outlook and cleanest practical daytime window
-- Pollutant transparency for PM2.5, PM10, ozone, and the dominant pollutant
+- Pollutant transparency for PM2.5, PM10, ozone, and the dominant pollutant, with WHO guideline references
 - Gemini-powered contextual Q&A with deterministic safety fallback
 - Responsive UI with keyboard support, visible focus, semantic HTML, and reduced-motion support
 - Unit and UI tests for decision logic and critical interactions
@@ -56,7 +56,7 @@ npm run build
 
 Latest production verification:
 
-- 33 automated tests passing
+- 53 automated tests passing across 10 test files
 - Lighthouse mobile: Performance 91, Accessibility 100, Best Practices 100, SEO 100
 - Cumulative Layout Shift 0.001; Largest Contentful Paint 2.4 seconds
 - Production city lookup and 24-hour forecast verified on Vercel
@@ -75,7 +75,8 @@ See [architecture](docs/ARCHITECTURE.md), [security and responsible AI](docs/SEC
 
 ## Assumptions and limitations
 
-- The hourly chart is illustrative; the current reading is modeled data rather than a nearby regulatory sensor measurement.
+- The hourly chart and current reading use modeled Open-Meteo/CAMS data rather than a nearby regulatory sensor measurement.
+- Pollutant comparisons are early-warning context: WHO guideline values use 24-hour or 8-hour averages, not an individual modeled snapshot.
 - The app uses the US 0–500 AQI categories returned by Open-Meteo.
 - Impact figures are illustrative educational estimates, not measurements.
 - Advice is general environmental guidance and does not replace medical care.
@@ -89,7 +90,7 @@ See [architecture](docs/ARCHITECTURE.md), [security and responsible AI](docs/SEC
 - No raw HTML is rendered from user input.
 - Inputs use constrained native controls.
 - Environment files are ignored; `.env.example` contains names only.
-- Future GenAI output should be schema-validated and rendered as text, never trusted HTML.
+- API responses are validated at the client boundary, and generated output is rendered as text rather than trusted HTML.
 
 ## Accessibility
 

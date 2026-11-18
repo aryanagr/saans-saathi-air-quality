@@ -93,7 +93,7 @@ nav a:hover, nav a:focus-visible { color: var(--green); border-color: var(--gree
 .reading-strip div:nth-child(4) { border-right: 0; }
 .reading-strip span { display: block; color: var(--soot-soft); font-size: 13px; margin-bottom: 7px; }
 .reading-strip strong { font-family: 'Bricolage Grotesque', sans-serif; font-size: 21px; letter-spacing: -.02em; }
-.reading-strip small { display: grid; gap: 3px; margin-top: 10px; color: var(--soot-soft); font-size: 11px; line-height: 1.35; }
+.reading-strip small { display: grid; gap: 3px; margin-top: 10px; color: var(--soot-soft); font-size: 12px; line-height: 1.4; }
 .reading-strip small b { color: var(--soot); font-size: 12px; }
 .reading-strip > p { grid-column: 1 / -1; margin: 0; padding: 9px 22px; color: var(--soot-soft); background: var(--fog); border-top: 1px solid var(--line); font-size: 13px; }
 .plan-section { scroll-margin-top: 24px; }
@@ -155,6 +155,7 @@ nav a:hover, nav a:focus-visible { color: var(--green); border-color: var(--gree
 .quick-questions { display: flex; flex-wrap: wrap; gap: 9px; margin: 28px 0 20px 82px; }
 .quick-questions button { min-height: 44px; padding: 8px 13px; color: white; background: transparent; border: 1px solid #8ac3b5; border-radius: 999px; cursor: pointer; }
 .quick-questions button:hover, .quick-questions button:focus-visible { color: var(--soot); background: var(--signal); border-color: var(--soot); }
+.quick-questions button:disabled { cursor: wait; opacity: .7; }
 .assistant-form { margin-left: 82px; }
 .assistant-form label { display: block; margin-bottom: 8px; font-weight: 700; }
 .assistant-form > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
@@ -243,6 +244,8 @@ footer p { margin: 0; }
   .aqi-chart { height: 170px; }
   .chart-value { font-size: 6px; }
   .chart-labels strong { font-size: 11px; }
+  .chart-labels { grid-template-columns: repeat(3, 1fr); gap: 14px 8px; margin-top: 12px; }
+  .chart-labels li, .chart-labels li:first-child, .chart-labels li:last-child { text-align: left; }
   .impact-section { margin-top: 60px; padding: 28px 22px; border-left-width: 6px; }
   .assistant-panel { margin-top: 60px; padding: 28px 20px 30px; box-shadow: 5px 5px 0 var(--soot); }
   .assistant-heading { grid-template-columns: 48px minmax(0, 1fr); gap: 13px; }

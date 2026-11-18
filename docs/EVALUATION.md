@@ -5,11 +5,11 @@
 | Problem alignment | Location- and household-aware exposure, indoor-air, commute, cooking, and activity decisions |
 | Smart assistance | Gemini explanation layer grounded in verified context, plus deterministic fallback |
 | Logical decision-making | Tested AQI thresholds and sensitivity-, commute-, purifier-, and fuel-aware rules |
-| Practical usability | Any-city search, current pollutant details, cleanest daytime window, checklist, direct impact |
+| Practical usability | Any-city search, WHO pollutant references, cleanest daytime window, checklist, direct impact |
 | Code quality | Separate provider, domain, UI, and assistant modules; strict TypeScript and linting |
 | Security | Server-only secret, bounded inputs, fixed outbound origins, timeouts, safe text rendering |
 | Efficiency | 15-minute edge caching, debounced city lookup, compressed 42 KB hero image, no heavy AI SDK |
-| Testing | Boundary, recommendation, provider-normalization, assistant-fallback, and UI interaction tests |
+| Testing | Boundary, malformed-response, recommendation, provider-normalization, assistant-fallback, and UI interaction tests |
 | Accessibility | Semantic landmarks, labelled fields, focus management, keyboard dialog, live regions, reduced motion |
 | Resilience | Explicit loading/error/live states, demo AQI fallback, guided assistant fallback |
 
@@ -17,7 +17,7 @@
 
 - Lighthouse mobile: Performance 91, Accessibility 100, Best Practices 100, SEO 100
 - Core loading metrics: LCP 2.4 s and CLS 0.001
-- 33 automated tests across six test files
+- 53 automated tests across 10 test files
 - Clean lint, strict TypeScript build, and production API smoke test
 
 ## Demonstration scenarios

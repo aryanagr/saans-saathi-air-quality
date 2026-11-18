@@ -37,8 +37,13 @@ const AQI_BANDS: Array<{ max: number; level: AqiLevel; label: string }> = [
   { max: 500, level: 'severe', label: 'Hazardous' },
 ];
 
+function normalizeAqi(aqi: number) {
+  if (!Number.isFinite(aqi)) return 0;
+  return Math.max(0, Math.min(500, Math.round(aqi)));
+}
+
 export function classifyAqi(aqi: number) {
-  const normalized = Math.max(0, Math.min(500, Math.round(aqi)));
+  const normalized = normalizeAqi(aqi);
   return AQI_BANDS.find((band) => normalized <= band.max) ?? AQI_BANDS[AQI_BANDS.length - 1];
 }
 
@@ -47,13 +52,14 @@ function isSensitive(profile: HouseholdProfile) {
 }
 
 export function createAirPlan(aqi: number, profile: HouseholdProfile): AirPlan {
-  const band = classifyAqi(aqi);
-  const hazardous = aqi > 300;
-  const unhealthy = aqi > 150;
+  const currentAqi = normalizeAqi(aqi);
+  const band = classifyAqi(currentAqi);
+  const hazardous = currentAqi > 300;
+  const unhealthy = currentAqi > 150;
   const sensitive = isSensitive(profile);
   const recommendations: Recommendation[] = [];
 
-  if (unhealthy || (sensitive && aqi > 100)) {
+  if (unhealthy || (sensitive && currentAqi > 100)) {
     recommendations.push({
       id: 'move-outdoors',
       title: hazardous ? 'Move outdoor plans indoors' : 'Shorten outdoor activity',
@@ -145,7 +151,7 @@ export function createAirPlan(aqi: number, profile: HouseholdProfile): AirPlan {
     category: 'indoor',
   });
 
-  const baseReduction = hazardous ? 45 : unhealthy ? 32 : aqi > 100 ? 20 : 8;
+  const baseReduction = hazardous ? 45 : unhealthy ? 32 : currentAqi > 100 ? 20 : 8;
   const commuteReduction = profile.commute === 'work-home' ? 3.2 : profile.commute === 'car' ? 1.4 : 0.8;
 
   return {
@@ -155,7 +161,7 @@ export function createAirPlan(aqi: number, profile: HouseholdProfile): AirPlan {
       ? 'Pollution is at a level where everyone should reduce exposure.'
       : unhealthy
         ? 'Plan a lower-exposure day, especially for sensitive family members.'
-        : aqi > 100
+        : currentAqi > 100
           ? 'Sensitive people should take extra care; others can adjust strenuous activity.'
           : 'Most people can follow their usual routine with normal precautions.',
     recommendations,
