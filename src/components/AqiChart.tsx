@@ -1,6 +1,7 @@
 interface ForecastPoint { time: string; aqi: number }
 
 interface AqiChartProps {
+  currentAqi: number;
   forecast?: ForecastPoint[];
   cleanestWindow?: ForecastPoint | null;
   isLive: boolean;
@@ -13,7 +14,7 @@ function formatHour(value: string) {
   return hour > 12 ? `${hour - 12} pm` : `${hour} am`;
 }
 
-export function AqiChart({ forecast = [], cleanestWindow, isLive }: AqiChartProps) {
+export function AqiChart({ currentAqi, forecast = [], cleanestWindow, isLive }: AqiChartProps) {
   const visible = forecast.filter((_, index) => index % 4 === 0).slice(0, 6);
   const values = visible.map((entry) => entry.aqi);
   const lowest = values.length ? Math.min(...values) : 0;
@@ -38,6 +39,11 @@ export function AqiChart({ forecast = [], cleanestWindow, isLive }: AqiChartProp
         </div>
         <span className="data-badge">{isLive ? 'Live model forecast' : 'Forecast unavailable'}</span>
       </div>
+      <dl className="aqi-comparison" aria-label="Current AQI compared with the good range">
+        <div><dt>Current AQI</dt><dd>{currentAqi}</dd></div>
+        <div className="good-reference"><dt>Good AQI range</dt><dd>0–50</dd></div>
+        <div><dt>Difference from good</dt><dd>{currentAqi > 50 ? `${currentAqi - 50} above the limit` : 'Within the good range'}</dd></div>
+      </dl>
       {points.length > 1 ? (
         <div className="chart-wrap">
           <svg className="aqi-chart" viewBox="0 0 100 100" role="img" aria-label={`Modeled AQI ranges from ${Math.min(...values)} to ${Math.max(...values)} over the next 24 hours`}>

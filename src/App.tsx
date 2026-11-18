@@ -182,7 +182,7 @@ export default function App() {
             </div>
           </section>
 
-          <AqiChart forecast={liveReading?.forecast} cleanestWindow={liveReading?.cleanestWindow} isLive={liveStatus === 'live'} />
+          <AqiChart currentAqi={aqi} forecast={liveReading?.forecast} cleanestWindow={liveReading?.cleanestWindow} isLive={liveStatus === 'live'} />
 
           <AssistantPanel context={{
             city: liveReading?.city ?? profile.city,

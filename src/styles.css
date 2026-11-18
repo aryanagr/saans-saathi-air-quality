@@ -125,6 +125,12 @@ nav a:hover, nav a:focus-visible { color: var(--green); border-color: var(--gree
 
 .chart-card { margin-top: 86px; padding: 34px 0 16px; border-block: 2px solid var(--soot); }
 .chart-card h2, .impact-section h2 { font-size: 28px; margin-bottom: 0; }
+.aqi-comparison { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 22px 0 8px; border: 1px solid var(--line); background: var(--paper); }
+.aqi-comparison div { padding: 15px 18px; border-right: 1px solid var(--line); }
+.aqi-comparison div:last-child { border-right: 0; }
+.aqi-comparison dt { color: var(--soot-soft); font-size: 13px; }
+.aqi-comparison dd { margin: 4px 0 0; color: var(--soot); font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px; font-weight: 700; }
+.aqi-comparison .good-reference { background: #deeee7; border-top: 4px solid var(--green); padding-top: 11px; }
 .chart-wrap { margin-top: 16px; overflow: hidden; background: linear-gradient(to top, rgba(232,95,69,.12), rgba(232,95,69,0) 65%); }
 .aqi-chart { display: block; width: 100%; height: 250px; overflow: visible; }
 .chart-grid { stroke: #aab7b2; stroke-width: .35; stroke-dasharray: 1 2; }
@@ -229,6 +235,9 @@ footer p { margin: 0; }
   .recommendation-icon { width: 46px; height: 46px; }
   .complete-button { grid-column: 1 / -1; justify-self: stretch; }
   .chart-card { margin-top: 60px; padding-top: 26px; }
+  .aqi-comparison { grid-template-columns: 1fr; }
+  .aqi-comparison div, .aqi-comparison div:last-child { border-right: 0; border-bottom: 1px solid var(--line); }
+  .aqi-comparison div:last-child { border-bottom: 0; }
   .aqi-chart { height: 170px; }
   .chart-value { font-size: 6px; }
   .chart-labels strong { font-size: 11px; }
