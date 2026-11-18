@@ -6,6 +6,7 @@ import { ProfilePanel } from './components/ProfilePanel';
 import { fetchLiveAirQuality, type LiveAirQuality } from './data/airQualityClient';
 import { CITY_AQI, DEFAULT_PROFILE } from './data/demo';
 import { createAirPlan, type HouseholdProfile, type Recommendation } from './domain/airQuality';
+import { describeGuidelineComparison, WHO_POLLUTANT_GUIDELINES, type PollutantGuideline } from './domain/pollutantGuidelines';
 
 const STORAGE_KEY = 'saans-saathi-profile-v1';
 
@@ -21,6 +22,21 @@ function loadProfile(): HouseholdProfile {
 function RecommendationIcon({ item }: { item: Recommendation }) {
   const Icon = item.category === 'indoor' ? Home : item.category === 'travel' ? Bus : Activity;
   return <Icon aria-hidden="true" />;
+}
+
+function PollutantReading({ label, value, guideline }: { label: string; value: number | null | undefined; guideline: PollutantGuideline }) {
+  return (
+    <div className="pollutant-reading">
+      <span>{label}</span>
+      <strong>{value != null ? `${value} µg/m³` : '—'}</strong>
+      {value != null && (
+        <small>
+          <b>{describeGuidelineComparison(value, guideline)}</b>
+          WHO guideline: {guideline.value} µg/m³ ({guideline.averagingPeriod})
+        </small>
+      )}
+    </div>
+  );
 }
 
 export default function App() {
@@ -142,10 +158,10 @@ export default function App() {
         <div className="content-wrap">
           <section className="reading-strip" aria-label="Current pollutant details">
             <div><span>Dominant pollutant</span><strong>{liveReading?.dominantPollutant ?? 'Not available'}</strong></div>
-            <div><span>PM2.5</span><strong>{liveReading?.pollutants.pm2_5 != null ? `${liveReading.pollutants.pm2_5} µg/m³` : '—'}</strong></div>
-            <div><span>PM10</span><strong>{liveReading?.pollutants.pm10 != null ? `${liveReading.pollutants.pm10} µg/m³` : '—'}</strong></div>
-            <div><span>Ozone</span><strong>{liveReading?.pollutants.ozone != null ? `${liveReading.pollutants.ozone} µg/m³` : '—'}</strong></div>
-            <p>Modeled concentrations can differ from nearby monitoring stations.</p>
+            <PollutantReading label="PM2.5" value={liveReading?.pollutants.pm2_5} guideline={WHO_POLLUTANT_GUIDELINES.pm2_5} />
+            <PollutantReading label="PM10" value={liveReading?.pollutants.pm10} guideline={WHO_POLLUTANT_GUIDELINES.pm10} />
+            <PollutantReading label="Ozone" value={liveReading?.pollutants.ozone} guideline={WHO_POLLUTANT_GUIDELINES.ozone} />
+            <p>WHO references use averaged exposure; current modeled snapshots are an early warning, not a direct compliance measurement. Concentrations can differ from nearby monitoring stations.</p>
           </section>
 
           <section id="plan" className="plan-section" aria-labelledby="plan-title">

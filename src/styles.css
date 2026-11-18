@@ -89,10 +89,12 @@ nav a:hover, nav a:focus-visible { color: var(--green); border-color: var(--gree
 
 .content-wrap { width: min(1160px, calc(100% - 40px)); margin: 0 auto; padding: 84px 0 76px; }
 .reading-strip { display: grid; grid-template-columns: repeat(4, 1fr); margin: -116px 0 76px; background: var(--paper); border: 1px solid var(--soot); position: relative; z-index: 3; box-shadow: 8px 8px 0 rgba(29, 42, 39, .16); }
-.reading-strip div { min-height: 92px; padding: 19px 22px; border-right: 1px solid var(--line); }
+.reading-strip div { min-height: 124px; padding: 19px 22px; border-right: 1px solid var(--line); }
 .reading-strip div:nth-child(4) { border-right: 0; }
 .reading-strip span { display: block; color: var(--soot-soft); font-size: 13px; margin-bottom: 7px; }
 .reading-strip strong { font-family: 'Bricolage Grotesque', sans-serif; font-size: 21px; letter-spacing: -.02em; }
+.reading-strip small { display: grid; gap: 3px; margin-top: 10px; color: var(--soot-soft); font-size: 11px; line-height: 1.35; }
+.reading-strip small b { color: var(--soot); font-size: 12px; }
 .reading-strip > p { grid-column: 1 / -1; margin: 0; padding: 9px 22px; color: var(--soot-soft); background: var(--fog); border-top: 1px solid var(--line); font-size: 13px; }
 .plan-section { scroll-margin-top: 24px; }
 .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 28px; margin-bottom: 34px; }
