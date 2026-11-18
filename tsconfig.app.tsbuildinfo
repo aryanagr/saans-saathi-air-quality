@@ -1,1 +1,0 @@
-{"root":["./src/app.test.tsx","./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/aqichart.tsx","./src/components/profilepanel.tsx","./src/data/demo.ts","./src/domain/airquality.test.ts","./src/domain/airquality.ts","./src/test/setup.ts"],"version":"6.0.3"}
