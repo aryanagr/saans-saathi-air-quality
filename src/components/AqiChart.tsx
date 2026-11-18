@@ -42,9 +42,16 @@ export function AqiChart({ forecast = [], cleanestWindow, isLive }: AqiChartProp
             <line x1="0" y1="54" x2="100" y2="54" className="chart-grid" />
             <line x1="0" y1="20" x2="100" y2="20" className="chart-grid" />
             <polyline points={points.map(({ x, y }) => `${x},${y}`).join(' ')} className="chart-line" />
-            {points.map(({ time, aqi, x, y }) => <circle key={time} cx={x} cy={y} r="1.8" className="chart-dot"><title>{formatHour(time)}: AQI {aqi}</title></circle>)}
+            {points.map(({ time, aqi, x, y }) => (
+              <g key={time}>
+                <circle cx={x} cy={y} r="1.8" className="chart-dot"><title>{formatHour(time)}: AQI {aqi}</title></circle>
+                <text x={x} y={Math.max(12, y - 5)} className="chart-value" textAnchor="middle" aria-hidden="true">{aqi}</text>
+              </g>
+            ))}
           </svg>
-          <div className="chart-labels" aria-hidden="true">{points.map(({ time }) => <span key={time}>{formatHour(time)}</span>)}</div>
+          <ol className="chart-labels" aria-label="Hourly AQI values">
+            {points.map(({ time, aqi }) => <li key={time}><span>{formatHour(time)}</span><strong>AQI {aqi}</strong></li>)}
+          </ol>
         </div>
       ) : <p className="chart-empty">Current guidance remains available. Try another city or refresh shortly.</p>}
     </section>

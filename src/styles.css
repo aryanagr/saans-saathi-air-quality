@@ -130,7 +130,12 @@ nav a:hover, nav a:focus-visible { color: var(--green); border-color: var(--gree
 .chart-grid { stroke: #aab7b2; stroke-width: .35; stroke-dasharray: 1 2; }
 .chart-line { fill: none; stroke: var(--green); stroke-width: 2.3; vector-effect: non-scaling-stroke; }
 .chart-dot { fill: var(--signal); stroke: var(--soot); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
-.chart-labels { display: flex; justify-content: space-between; color: var(--soot-soft); font-size: 13px; }
+.chart-value { fill: var(--soot); font-family: 'Source Sans 3', sans-serif; font-size: 5px; font-weight: 700; paint-order: stroke; stroke: var(--fog); stroke-width: 2px; stroke-linejoin: round; }
+.chart-labels { display: grid; grid-template-columns: repeat(6, 1fr); padding: 0; margin: 4px 0 0; color: var(--soot-soft); font-size: 13px; list-style: none; }
+.chart-labels li { display: flex; flex-direction: column; gap: 3px; text-align: center; }
+.chart-labels li:first-child { text-align: left; }
+.chart-labels li:last-child { text-align: right; }
+.chart-labels strong { color: var(--soot); font-size: 12px; }
 .chart-empty { padding: 24px; background: var(--mist); border: 1px solid var(--line); color: var(--soot-soft); }
 
 .assistant-panel { margin-top: 86px; padding: 36px 42px 42px; color: var(--paper); background: var(--green); border: 2px solid var(--soot); box-shadow: 9px 9px 0 var(--soot); }
@@ -225,6 +230,8 @@ footer p { margin: 0; }
   .complete-button { grid-column: 1 / -1; justify-self: stretch; }
   .chart-card { margin-top: 60px; padding-top: 26px; }
   .aqi-chart { height: 170px; }
+  .chart-value { font-size: 6px; }
+  .chart-labels strong { font-size: 11px; }
   .impact-section { margin-top: 60px; padding: 28px 22px; border-left-width: 6px; }
   .assistant-panel { margin-top: 60px; padding: 28px 20px 30px; box-shadow: 5px 5px 0 var(--soot); }
   .assistant-heading { grid-template-columns: 48px minmax(0, 1fr); gap: 13px; }
