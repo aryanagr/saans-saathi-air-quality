@@ -16,7 +16,7 @@ The MVP combines deterministic safety rules with contextual personalisation. AQI
 - Direct impact explanation for every recommendation
 - Interactive daily checklist and progress summary
 - Illustrative exposure and emissions impact estimates with transparent caveats
-- Demo forecast and multiple city profiles; no API key required
+- Live current AQI search for any city through Google APIs, with a labelled demo fallback
 - Responsive UI with keyboard support, visible focus, semantic HTML, and reduced-motion support
 - Unit and UI tests for decision logic and critical interactions
 
@@ -29,6 +29,16 @@ npm run dev
 
 Then open the URL printed by Vite.
 
+### Enable live city data
+
+In Google Cloud, enable **Geocoding API** and **Air Quality API**, then add this server-only environment variable locally and in the Vercel project:
+
+```bash
+GOOGLE_MAPS_API_KEY=your_key_here
+```
+
+Do not prefix the key with `VITE_`; that would expose it in the browser. Restrict the key to only the two required Google APIs and configure quota alerts. If the key, quota, or provider is unavailable, the interface explicitly falls back to illustrative readings.
+
 ## Verify
 
 ```bash
@@ -39,26 +49,27 @@ npm run build
 
 ## How the logic works
 
-1. The selected city provides a demo AQI reading.
+1. A server-side function geocodes the selected city and requests current AQI from Google; verified demo readings are the fallback.
 2. `classifyAqi` maps the number to India AQI bands.
 3. `createAirPlan` combines the AQI band with household sensitivity, commute, purifier access, and cooking fuel.
 4. Safety-critical recommendations are deterministic and covered by boundary tests.
 5. The interface explains the direct benefit and urgency of each action.
 
-The domain logic lives in `src/domain/airQuality.ts`, separate from React and data access. This makes it straightforward to replace demo readings with a server-side AQI provider and optionally use GenAI to rewrite explanations without handing safety decisions to the model.
+The domain logic lives in `src/domain/airQuality.ts`, separate from React and data access. The provider key remains in the server-side `api/air-quality.ts` function, while the browser receives only a normalized reading.
 
 ## Assumptions and limitations
 
-- AQI values and the hourly forecast are clearly labelled demo data.
+- The hourly forecast is illustrative; current AQI is live when the Google integration is configured.
 - The app uses India’s 0–500 AQI categories.
 - Impact figures are illustrative educational estimates, not measurements.
 - Advice is general environmental guidance and does not replace medical care.
 - Profile data is stored only in the browser’s local storage.
-- A production deployment should fetch AQI through a server-side adapter, validate responses, cache briefly, rate-limit requests, and keep provider keys off the client.
+- Current readings are cached briefly at the Vercel edge; production quotas should also be limited and monitored in Google Cloud.
 
 ## Security and privacy
 
-- No secrets or personal data are sent to a server in this MVP.
+- The Google API key is server-only and never included in the browser bundle.
+- City search text is sent to the app's server function and then to Google Geocoding.
 - No raw HTML is rendered from user input.
 - Inputs use constrained native controls.
 - Environment files are ignored; `.env.example` contains names only.

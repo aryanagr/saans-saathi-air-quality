@@ -56,10 +56,11 @@ export function ProfilePanel({ open, profile, onChange, onClose }: ProfilePanelP
 
         <div className="field">
           <label htmlFor="city">Location</label>
-          <select id="city" value={profile.city} onChange={(event) => update('city', event.target.value)}>
-            {['New Delhi', 'Mumbai', 'Bengaluru', 'Kolkata', 'Lucknow'].map((city) => <option key={city}>{city}</option>)}
-          </select>
-          <p className="field-help">Demo AQI data updates when the city changes.</p>
+          <input id="city" list="city-suggestions" value={profile.city} maxLength={80} autoComplete="address-level2" onChange={(event) => update('city', event.target.value)} />
+          <datalist id="city-suggestions">
+            {['New Delhi', 'Mumbai', 'Bengaluru', 'Kolkata', 'Lucknow', 'Chennai', 'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Chandigarh', 'Gurugram', 'Noida'].map((city) => <option key={city} value={city} />)}
+          </datalist>
+          <p className="field-help">Search any city. Live AQI refreshes after you finish typing.</p>
         </div>
 
         <div className="field">

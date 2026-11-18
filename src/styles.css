@@ -53,6 +53,11 @@ nav a:hover, nav a:focus-visible { color: var(--green); border-color: var(--gree
 .location { display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 34px; color: var(--soot); }
 .location svg { width: 18px; color: var(--green); }
 .location span { color: var(--soot-soft); font-weight: 500; padding-left: 10px; border-left: 1px solid var(--soot-soft); }
+.data-status { display: flex; align-items: center; gap: 8px; width: fit-content; margin: -24px 0 28px 26px; color: var(--soot-soft); font-size: 13px; font-weight: 700; }
+.data-status span { width: 8px; height: 8px; border-radius: 50%; background: var(--alert); box-shadow: 0 0 0 3px color-mix(in srgb, var(--alert) 18%, transparent); }
+.data-status.data-live span { background: var(--green); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 18%, transparent); }
+.data-status.data-loading span { animation: status-pulse 1.2s ease-in-out infinite; }
+@keyframes status-pulse { 50% { opacity: .35; transform: scale(.75); } }
 .aqi-reading { display: grid; grid-template-columns: minmax(170px, 230px) minmax(0, 1fr); gap: clamp(24px, 4vw, 54px); align-items: center; max-width: 970px; }
 .aqi-number { min-height: 236px; padding: 24px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; background: var(--alert); border: 2px solid var(--soot); border-radius: 115px 115px 10px 10px; box-shadow: inset 0 0 0 10px rgba(255,255,255,.16); font-family: 'Bricolage Grotesque', sans-serif; color: #151c1a; font-size: clamp(58px, 7vw, 86px); font-weight: 700; line-height: .78; letter-spacing: -.075em; position: relative; }
 .aqi-number::before { content: ''; position: absolute; top: 34px; left: 50%; width: 8px; height: 82px; margin-left: -4px; background: var(--soot); border-radius: 8px; transform-origin: center bottom; transform: rotate(34deg); }

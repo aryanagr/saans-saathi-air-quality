@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Activity, ArrowRight, Bus, Check, HeartPulse, Home, Leaf, MapPin, Settings2, ShieldCheck, Sparkles, Wind } from 'lucide-react';
 import { AqiChart } from './components/AqiChart';
 import { ProfilePanel } from './components/ProfilePanel';
+import { fetchLiveAirQuality, type LiveAirQuality } from './data/airQualityClient';
 import { CITY_AQI, DEFAULT_PROFILE } from './data/demo';
 import { createAirPlan, type HouseholdProfile, type Recommendation } from './domain/airQuality';
 
@@ -25,13 +26,46 @@ export default function App() {
   const [profile, setProfile] = useState(loadProfile);
   const [profileOpen, setProfileOpen] = useState(false);
   const [completed, setCompleted] = useState<string[]>([]);
+  const [liveReading, setLiveReading] = useState<LiveAirQuality | null>(null);
+  const [liveStatus, setLiveStatus] = useState<'loading' | 'live' | 'fallback'>('loading');
+  const [liveMessage, setLiveMessage] = useState('Checking current conditions…');
   const profileTrigger = useRef<HTMLElement | null>(null);
-  const aqi = CITY_AQI[profile.city] ?? 180;
+  const aqi = liveReading?.aqi ?? CITY_AQI[profile.city] ?? 180;
   const plan = useMemo(() => createAirPlan(aqi, profile), [aqi, profile]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
   }, [profile]);
+
+  useEffect(() => {
+    const city = profile.city.trim();
+    if (city.length < 2) return;
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      setLiveStatus('loading');
+      setLiveMessage('Checking current conditions…');
+      fetchLiveAirQuality(city, controller.signal)
+        .then((reading) => {
+          setLiveReading(reading);
+          setLiveStatus('live');
+          setLiveMessage(`Live ${reading.indexName} from Google`);
+        })
+        .catch((error: unknown) => {
+          if (controller.signal.aborted) return;
+          setLiveReading(null);
+          setLiveStatus('fallback');
+          setLiveMessage(error instanceof Error ? `${error.message} Showing demo data.` : 'Showing demo data.');
+        });
+    }, 500);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [profile.city]);
+
+  const updatedLabel = liveReading
+    ? `Updated ${new Intl.DateTimeFormat('en-IN', { hour: 'numeric', minute: '2-digit' }).format(new Date(liveReading.updatedAt))}`
+    : 'Illustrative reading';
 
   useEffect(() => {
     if (!profileOpen) return;
@@ -79,7 +113,8 @@ export default function App() {
       <main id="main">
         <section className={`aqi-hero level-${plan.level}`} aria-labelledby="aqi-heading">
           <div className="hero-content">
-            <p className="location"><MapPin aria-hidden="true" /> {profile.city} <span>Updated 10 minutes ago</span></p>
+            <p className="location"><MapPin aria-hidden="true" /> {liveReading?.city ?? profile.city} <span>{updatedLabel}</span></p>
+            <p className={`data-status data-${liveStatus}`} aria-live="polite"><span aria-hidden="true" />{liveMessage}</p>
             <div className="aqi-reading">
               <div className="aqi-number" aria-label={`Air quality index ${aqi}`}><span>AQI</span>{aqi}</div>
               <div>
@@ -156,7 +191,7 @@ export default function App() {
         </div>
       </main>
 
-      <footer><p><strong>Saans Saathi</strong> turns air-quality data into practical daily choices.</p><p>Demo data • AQI uses India’s 0–500 scale</p></footer>
+      <footer><p><strong>Saans Saathi</strong> turns air-quality data into practical daily choices.</p><p>{liveStatus === 'live' ? 'Current data provided by Google Maps Air Quality' : 'Fallback demo data • AQI uses India’s 0–500 scale'}</p></footer>
 
       <ProfilePanel open={profileOpen} profile={profile} onChange={setProfile} onClose={closeProfile} />
     </div>
