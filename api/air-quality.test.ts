@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { selectAirQualityIndex, validateCity } from './air-quality';
+import { getDominantPollutant, getUsAqiCategory, validateCity } from './air-quality';
 
 describe('live air-quality API helpers', () => {
   it('normalizes safe city names', () => {
@@ -13,8 +13,13 @@ describe('live air-quality API helpers', () => {
     expect(validateCity('x'.repeat(81))).toBeNull();
   });
 
-  it('prefers the local index and falls back to universal AQI', () => {
-    expect(selectAirQualityIndex([{ code: 'uaqi', aqi: 80 }, { code: 'ind_cpcb', aqi: 164 }])?.aqi).toBe(164);
-    expect(selectAirQualityIndex([{ code: 'uaqi', aqi: 80 }])?.aqi).toBe(80);
+  it('uses the US AQI category boundaries', () => {
+    expect(getUsAqiCategory(50)).toBe('Good');
+    expect(getUsAqiCategory(101)).toBe('Unhealthy for sensitive groups');
+    expect(getUsAqiCategory(301)).toBe('Hazardous');
+  });
+
+  it('finds the component driving the overall AQI', () => {
+    expect(getDominantPollutant({ us_aqi_pm2_5: 164, us_aqi_ozone: 72, us_aqi_pm10: 91 })).toBe('PM2.5');
   });
 });

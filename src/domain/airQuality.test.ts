@@ -12,8 +12,8 @@ const profile: HouseholdProfile = {
 describe('classifyAqi', () => {
   it.each([
     [0, 'good'], [50, 'good'], [51, 'satisfactory'], [100, 'satisfactory'],
-    [101, 'moderate'], [200, 'moderate'], [201, 'poor'], [300, 'poor'],
-    [301, 'very-poor'], [400, 'very-poor'], [401, 'severe'], [600, 'severe'],
+    [101, 'moderate'], [150, 'moderate'], [151, 'poor'], [200, 'poor'],
+    [201, 'very-poor'], [300, 'very-poor'], [301, 'severe'], [600, 'severe'],
   ])('classifies AQI %i as %s', (aqi, expected) => {
     expect(classifyAqi(aqi).level).toBe(expected);
   });
@@ -22,7 +22,7 @@ describe('classifyAqi', () => {
 describe('createAirPlan', () => {
   it('prioritises indoor activity for a sensitive household during very poor air', () => {
     const plan = createAirPlan(312, profile);
-    expect(plan.label).toBe('Very poor');
+    expect(plan.label).toBe('Hazardous');
     expect(plan.recommendations[0]).toMatchObject({ id: 'move-outdoors', priority: 'now' });
     expect(plan.exposureReduction).toBeGreaterThanOrEqual(45);
   });

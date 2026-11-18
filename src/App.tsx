@@ -48,7 +48,7 @@ export default function App() {
         .then((reading) => {
           setLiveReading(reading);
           setLiveStatus('live');
-          setLiveMessage(`Live ${reading.indexName} from Google`);
+          setLiveMessage(`${reading.indexName} via Open-Meteo`);
         })
         .catch((error: unknown) => {
           if (controller.signal.aborted) return;
@@ -191,7 +191,7 @@ export default function App() {
         </div>
       </main>
 
-      <footer><p><strong>Saans Saathi</strong> turns air-quality data into practical daily choices.</p><p>{liveStatus === 'live' ? 'Current data provided by Google Maps Air Quality' : 'Fallback demo data • AQI uses India’s 0–500 scale'}</p></footer>
+      <footer><p><strong>Saans Saathi</strong> turns air-quality data into practical daily choices.</p><p>{liveStatus === 'live' ? <>Modeled air-quality data by <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a> and CAMS • US AQI</> : 'Fallback demo data • US AQI scale'}</p></footer>
 
       <ProfilePanel open={profileOpen} profile={profile} onChange={setProfile} onClose={closeProfile} />
     </div>

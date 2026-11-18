@@ -30,11 +30,11 @@ export interface AirPlan {
 
 const AQI_BANDS: Array<{ max: number; level: AqiLevel; label: string }> = [
   { max: 50, level: 'good', label: 'Good' },
-  { max: 100, level: 'satisfactory', label: 'Satisfactory' },
-  { max: 200, level: 'moderate', label: 'Moderate' },
-  { max: 300, level: 'poor', label: 'Poor' },
-  { max: 400, level: 'very-poor', label: 'Very poor' },
-  { max: 500, level: 'severe', label: 'Severe' },
+  { max: 100, level: 'satisfactory', label: 'Moderate' },
+  { max: 150, level: 'moderate', label: 'Unhealthy for sensitive groups' },
+  { max: 200, level: 'poor', label: 'Unhealthy' },
+  { max: 300, level: 'very-poor', label: 'Very unhealthy' },
+  { max: 500, level: 'severe', label: 'Hazardous' },
 ];
 
 export function classifyAqi(aqi: number) {
@@ -49,7 +49,7 @@ function isSensitive(profile: HouseholdProfile) {
 export function createAirPlan(aqi: number, profile: HouseholdProfile): AirPlan {
   const band = classifyAqi(aqi);
   const hazardous = aqi > 300;
-  const unhealthy = aqi > 200;
+  const unhealthy = aqi > 150;
   const sensitive = isSensitive(profile);
   const recommendations: Recommendation[] = [];
 

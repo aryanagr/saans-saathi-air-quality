@@ -10,13 +10,13 @@ The MVP combines deterministic safety rules with contextual personalisation. AQI
 
 ## Features
 
-- India AQI classification with clear, non-colour-only status labels
+- US AQI classification with clear, non-colour-only status labels
 - Household-aware advice for children, older adults, asthma, and pregnancy
 - Contextual commute, indoor-air, ventilation, and cooking actions
 - Direct impact explanation for every recommendation
 - Interactive daily checklist and progress summary
 - Illustrative exposure and emissions impact estimates with transparent caveats
-- Live current AQI search for any city through Google APIs, with a labelled demo fallback
+- Key-free modeled current AQI search for any city through Open-Meteo, with a labelled demo fallback
 - Responsive UI with keyboard support, visible focus, semantic HTML, and reduced-motion support
 - Unit and UI tests for decision logic and critical interactions
 
@@ -29,15 +29,9 @@ npm run dev
 
 Then open the URL printed by Vite.
 
-### Enable live city data
+### Live city data
 
-In Google Cloud, enable **Geocoding API** and **Air Quality API**, then add this server-only environment variable locally and in the Vercel project:
-
-```bash
-GOOGLE_MAPS_API_KEY=your_key_here
-```
-
-Do not prefix the key with `VITE_`; that would expose it in the browser. Restrict the key to only the two required Google APIs and configure quota alerts. If the key, quota, or provider is unavailable, the interface explicitly falls back to illustrative readings.
+No API key or account is required. The server function uses Open-Meteo's geocoding and air-quality APIs, caches responses for 15 minutes, and falls back to illustrative readings when the provider is unavailable. The free service is intended for non-commercial use and requires attribution.
 
 ## Verify
 
@@ -49,27 +43,27 @@ npm run build
 
 ## How the logic works
 
-1. A server-side function geocodes the selected city and requests current AQI from Google; verified demo readings are the fallback.
-2. `classifyAqi` maps the number to India AQI bands.
+1. A server-side function geocodes the selected city and requests modeled current US AQI from Open-Meteo; demo readings are the fallback.
+2. `classifyAqi` maps the number to US EPA AQI bands.
 3. `createAirPlan` combines the AQI band with household sensitivity, commute, purifier access, and cooking fuel.
 4. Safety-critical recommendations are deterministic and covered by boundary tests.
 5. The interface explains the direct benefit and urgency of each action.
 
-The domain logic lives in `src/domain/airQuality.ts`, separate from React and data access. The provider key remains in the server-side `api/air-quality.ts` function, while the browser receives only a normalized reading.
+The domain logic lives in `src/domain/airQuality.ts`, separate from React and data access. The server-side `api/air-quality.ts` function normalizes provider data before the browser receives it.
 
 ## Assumptions and limitations
 
-- The hourly forecast is illustrative; current AQI is live when the Google integration is configured.
-- The app uses India’s 0–500 AQI categories.
+- The hourly chart is illustrative; the current reading is modeled data rather than a nearby regulatory sensor measurement.
+- The app uses the US 0–500 AQI categories returned by Open-Meteo.
 - Impact figures are illustrative educational estimates, not measurements.
 - Advice is general environmental guidance and does not replace medical care.
 - Profile data is stored only in the browser’s local storage.
-- Current readings are cached briefly at the Vercel edge; production quotas should also be limited and monitored in Google Cloud.
+- Current readings are cached for 15 minutes at the Vercel edge.
 
 ## Security and privacy
 
-- The Google API key is server-only and never included in the browser bundle.
-- City search text is sent to the app's server function and then to Google Geocoding.
+- No air-quality API secret is required or included in the browser bundle.
+- City search text is sent to the app's server function and then to Open-Meteo Geocoding.
 - No raw HTML is rendered from user input.
 - Inputs use constrained native controls.
 - Environment files are ignored; `.env.example` contains names only.
