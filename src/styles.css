@@ -47,9 +47,15 @@ nav a:hover, nav a:focus-visible { color: var(--green); border-color: var(--gree
 .icon-button { width: 44px; border-radius: 50%; }
 .profile-button:hover, .icon-button:hover { color: white; background: var(--soot); }
 
-.aqi-hero { min-height: 560px; padding: 0 clamp(20px, 7vw, 112px); display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(270px, .45fr); grid-template-rows: 1fr auto; gap: 0 64px; color: var(--soot); background-color: #d9e0dd; background-image: repeating-linear-gradient(175deg, transparent 0 52px, rgba(29,42,39,.055) 53px, transparent 54px), radial-gradient(ellipse at 77% 26%, rgba(255,255,255,.82), transparent 27%); border-bottom: 1px solid var(--soot); position: relative; }
+.aqi-hero { --air-wash: rgba(220, 234, 230, .77); --air-edge: rgba(217, 224, 221, .96); min-height: 560px; padding: 0 clamp(20px, 7vw, 112px); display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(270px, .45fr); grid-template-rows: 1fr auto; gap: 0 64px; color: var(--soot); background-color: #d9e0dd; background-image: linear-gradient(90deg, var(--air-edge) 0 32%, var(--air-wash) 62%, rgba(217,224,221,.28) 100%), url('/images/urban-winter-atmosphere.webp'); background-size: cover; background-position: center; border-bottom: 1px solid var(--soot); position: relative; isolation: isolate; }
+.aqi-hero.level-good { --air-wash: rgba(205, 233, 229, .55); --air-edge: rgba(225, 241, 237, .94); }
+.aqi-hero.level-satisfactory { --air-wash: rgba(215, 231, 218, .62); --air-edge: rgba(231, 238, 222, .95); }
+.aqi-hero.level-moderate { --air-wash: rgba(235, 219, 177, .65); --air-edge: rgba(237, 229, 202, .95); }
+.aqi-hero.level-poor { --air-wash: rgba(225, 190, 147, .7); --air-edge: rgba(232, 218, 190, .96); }
+.aqi-hero.level-very-poor { --air-wash: rgba(195, 139, 119, .72); --air-edge: rgba(226, 205, 190, .96); }
+.aqi-hero.level-severe { --air-wash: rgba(126, 79, 78, .74); --air-edge: rgba(211, 190, 180, .97); }
 .aqi-hero::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 12px; background: linear-gradient(to bottom, #34a873 0 20%, #e7ce42 20% 40%, #e8953c 40% 60%, var(--alert) 60% 80%, #784354 80%); border-right: 1px solid var(--soot); }
-.hero-content { display: flex; flex-direction: column; justify-content: center; padding-block: 58px 48px; }
+.hero-content { display: flex; flex-direction: column; justify-content: center; padding-block: 58px 48px; position: relative; z-index: 1; }
 .location { display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 34px; color: var(--soot); }
 .location svg { width: 18px; color: var(--green); }
 .location span { color: var(--soot-soft); font-weight: 500; padding-left: 10px; border-left: 1px solid var(--soot-soft); }
@@ -74,7 +80,7 @@ nav a:hover, nav a:focus-visible { color: var(--green); border-color: var(--gree
 .primary-button svg { width: 18px; }
 .text-button { min-height: 44px; padding: 0 6px; border: 0; background: transparent; color: var(--soot); border-bottom: 1px solid currentColor; cursor: pointer; font-weight: 700; }
 .text-button:hover { color: var(--green); }
-.quick-guidance { align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end; gap: 17px; padding: 48px 30px; color: var(--paper); background: var(--soot); border-inline: 1px solid #0b1411; position: relative; }
+.quick-guidance { align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end; gap: 17px; padding: 48px 30px; color: var(--paper); background: rgba(29, 42, 39, .94); backdrop-filter: blur(8px); border-inline: 1px solid #0b1411; position: relative; z-index: 1; }
 .quick-guidance::before { content: 'Family note'; position: absolute; top: 30px; left: 30px; color: var(--signal); font-weight: 700; }
 .quick-guidance > svg { width: 52px; height: 52px; color: var(--signal); stroke-width: 1.3; }
 .quick-guidance strong { font-family: 'Bricolage Grotesque', sans-serif; font-size: 25px; letter-spacing: -.03em; }
