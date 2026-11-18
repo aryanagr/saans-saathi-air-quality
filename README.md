@@ -56,7 +56,7 @@ npm run build
 
 Latest production verification:
 
-- 53 automated tests passing across 10 test files
+- 62 automated tests passing across 10 test files
 - Lighthouse mobile: Performance 91, Accessibility 100, Best Practices 100, SEO 100
 - Cumulative Layout Shift 0.001; Largest Contentful Paint 2.4 seconds
 - Production city lookup and 24-hour forecast verified on Vercel

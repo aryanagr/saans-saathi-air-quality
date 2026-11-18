@@ -38,7 +38,8 @@ const AQI_BANDS: Array<{ max: number; level: AqiLevel; label: string }> = [
 ];
 
 function normalizeAqi(aqi: number) {
-  if (!Number.isFinite(aqi)) return 0;
+  // Unknown air quality must never be translated into clean-air guidance.
+  if (!Number.isFinite(aqi)) return 500;
   return Math.max(0, Math.min(500, Math.round(aqi)));
 }
 

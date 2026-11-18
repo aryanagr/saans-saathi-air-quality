@@ -28,6 +28,15 @@ describe('AssistantPanel', () => {
     expect(screen.getByText(/gemini explanation/i)).toBeInTheDocument();
   });
 
+  it('preserves a successful guided response attribution', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ answer: 'Use the cleaner daytime window.', mode: 'guided' }) }));
+    render(<AssistantPanel context={context} />);
+    fireEvent.change(screen.getByLabelText(/your air-quality question/i), { target: { value: 'When should we walk?' } });
+    fireEvent.click(screen.getByRole('button', { name: /^ask$/i }));
+    await waitFor(() => expect(screen.getByText('Use the cleaner daytime window.')).toBeInTheDocument());
+    expect(screen.getByText(/guided safety answer/i)).toBeInTheDocument();
+  });
+
   it('prevents duplicate suggested requests while an answer is loading', () => {
     vi.stubGlobal('fetch', vi.fn().mockImplementation(() => new Promise(() => undefined)));
     render(<AssistantPanel context={context} />);

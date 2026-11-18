@@ -30,7 +30,7 @@ export function AssistantPanel({ context }: { context: AssistantContext }) {
     try {
       const result = await askAssistant(nextQuestion, context, controller.signal);
       setAnswer(result.answer);
-      setMode('gemini');
+      setMode(result.mode);
     } catch {
       if (controller.signal.aborted) return;
       setAnswer(getGuidedAnswer(nextQuestion, context));

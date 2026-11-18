@@ -6,6 +6,9 @@ const MAX_ANSWER_LENGTH = 4_000;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_REQUESTS = 10;
 const MAX_RATE_LIMIT_CLIENTS = 5_000;
+const SENSITIVITIES = new Set(['none', 'child', 'older-adult', 'asthma', 'pregnancy']);
+const COMMUTE_MODES = new Set(['walk', 'cycle', 'public', 'car', 'work-home']);
+const POLLUTANTS = new Set(['PM2.5', 'PM10', 'NO₂', 'CO', 'SO₂', 'O₃']);
 
 type RateLimitEntry = { count: number; resetAt: number };
 const rateLimits = new Map<string, RateLimitEntry>();
@@ -40,17 +43,31 @@ function safeAqi(value: unknown): number | undefined {
     : undefined;
 }
 
+function categoryForAqi(aqi: number): string {
+  if (aqi <= 50) return 'Good';
+  if (aqi <= 100) return 'Moderate';
+  if (aqi <= 150) return 'Unhealthy for sensitive groups';
+  if (aqi <= 200) return 'Unhealthy';
+  if (aqi <= 300) return 'Very unhealthy';
+  return 'Hazardous';
+}
+
+function allowedText(value: unknown, allowed: Set<string>): string | undefined {
+  return typeof value === 'string' && allowed.has(value) ? value : undefined;
+}
+
 export function normalizeAssistantContext(value: unknown): AssistantContext {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
   const input = value as Record<string, unknown>;
   const output: AssistantContext = {};
   const city = safeText(input.city, 80);
   const aqi = safeAqi(input.aqi);
-  const category = safeText(input.category, 80);
-  const dominantPollutant = safeText(input.dominantPollutant, 40);
+  const dominantPollutant = allowedText(input.dominantPollutant, POLLUTANTS);
   if (city) output.city = city;
-  if (aqi !== undefined) output.aqi = aqi;
-  if (category) output.category = category;
+  if (aqi !== undefined) {
+    output.aqi = aqi;
+    output.category = categoryForAqi(aqi);
+  }
   if (input.dominantPollutant === null) output.dominantPollutant = null;
   else if (dominantPollutant) output.dominantPollutant = dominantPollutant;
 
@@ -65,8 +82,8 @@ export function normalizeAssistantContext(value: unknown): AssistantContext {
     const profile = input.profile as Record<string, unknown>;
     const normalizedProfile: NonNullable<AssistantContext['profile']> = {};
     const profileCity = safeText(profile.city, 80);
-    const sensitivity = safeText(profile.sensitivity, 40);
-    const commute = safeText(profile.commute, 40);
+    const sensitivity = allowedText(profile.sensitivity, SENSITIVITIES);
+    const commute = allowedText(profile.commute, COMMUTE_MODES);
     if (profileCity) normalizedProfile.city = profileCity;
     if (sensitivity) normalizedProfile.sensitivity = sensitivity;
     if (commute) normalizedProfile.commute = commute;
@@ -96,6 +113,10 @@ export function checkRateLimit(identifier: string, now = Date.now()) {
     remaining: Math.max(0, RATE_LIMIT_REQUESTS - current.count),
     resetAt: current.resetAt,
   };
+}
+
+export function secondsUntilRateLimitReset(resetAt: number, now = Date.now()) {
+  return Math.max(0, Math.ceil((resetAt - now) / 1_000));
 }
 
 function getClientIdentifier(request: IncomingMessage) {
@@ -140,9 +161,9 @@ export default async function handler(request: IncomingMessage, response: Server
   const limit = checkRateLimit(getClientIdentifier(request));
   response.setHeader('RateLimit-Limit', String(RATE_LIMIT_REQUESTS));
   response.setHeader('RateLimit-Remaining', String(limit.remaining));
-  response.setHeader('RateLimit-Reset', String(Math.ceil(limit.resetAt / 1_000)));
+  response.setHeader('RateLimit-Reset', String(secondsUntilRateLimitReset(limit.resetAt)));
   if (!limit.allowed) {
-    response.setHeader('Retry-After', String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1_000))));
+    response.setHeader('Retry-After', String(Math.max(1, secondsUntilRateLimitReset(limit.resetAt))));
     return sendJson(response, 429, { error: 'Too many questions. Please wait a minute and try again.' });
   }
 

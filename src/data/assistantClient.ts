@@ -9,7 +9,11 @@ export interface AssistantContext {
   profile: HouseholdProfile;
 }
 
-export async function askAssistant(question: string, context: AssistantContext, signal?: AbortSignal) {
+export async function askAssistant(
+  question: string,
+  context: AssistantContext,
+  signal?: AbortSignal,
+): Promise<{ answer: string; mode: 'guided' | 'gemini' }> {
   const response = await fetch('/api/assistant', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

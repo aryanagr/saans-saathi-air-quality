@@ -15,6 +15,13 @@ describe('App', () => {
     expect(screen.getAllByRole('button', { name: /mark done/i }).length).toBeGreaterThan(0);
   });
 
+  it('recovers from a malformed saved household profile', () => {
+    localStorage.setItem('saans-saathi-profile-v1', JSON.stringify({ city: null, commute: 'teleport', sensitivity: 7 }));
+    render(<App />);
+    expect(screen.getByText(/New Delhi/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /plan a lower-exposure day/i })).toBeInTheDocument();
+  });
+
   it('tracks completed actions accessibly', () => {
     render(<App />);
     const button = screen.getAllByRole('button', { name: /mark done/i })[0];

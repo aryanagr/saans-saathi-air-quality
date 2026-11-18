@@ -30,6 +30,13 @@ describe('live air-quality API helpers', () => {
     )).toEqual({ time: '2026-11-18T15:00', value: 61 });
   });
 
+  it('ignores malformed times and impossible AQI values in clean-window selection', () => {
+    expect(findCleanestWindow(
+      ['soon', '2026-11-18T09:00', '2026-11-18T15:00'],
+      [10, -1, 61],
+    )).toEqual({ time: '2026-11-18T15:00', value: 61 });
+  });
+
   it('converts provider-local timestamps to UTC', () => {
     expect(localTimeToUtc('2026-11-18T21:30', 19_800)).toBe('2026-11-18T16:00:00.000Z');
   });

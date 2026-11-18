@@ -3,6 +3,19 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 const CITY_PATTERN = /^[\p{L}\p{M}\d .,'()-]+$/u;
 const REQUEST_TIMEOUT_MS = 8_000;
 
+function isAqi(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 500;
+}
+
+function isLocalTime(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return false;
+  return Number.isFinite(Date.parse(`${value}:00Z`));
+}
+
+function safeConcentration(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null;
+}
+
 type CurrentAir = {
   time?: string; us_aqi?: number; pm2_5?: number; pm10?: number; carbon_monoxide?: number;
   nitrogen_dioxide?: number; sulphur_dioxide?: number; ozone?: number;
@@ -36,7 +49,7 @@ export function findCleanestWindow(times: string[] = [], values: Array<number | 
   const candidates = times.map((time, index) => ({ time, value: values[index] }))
     .filter((entry): entry is { time: string; value: number } => {
       const hour = Number(entry.time.slice(11, 13));
-      return Number.isFinite(entry.value) && hour >= 6 && hour <= 20;
+      return isLocalTime(entry.time) && isAqi(entry.value) && hour >= 6 && hour <= 20;
     });
   return candidates.sort((a, b) => a.value - b.value)[0] ?? null;
 }
@@ -120,13 +133,13 @@ export default async function handler(request: IncomingMessage, response: Server
     ].join(','));
     const air = await fetchJson<{ current?: CurrentAir; hourly?: HourlyAir; utc_offset_seconds?: number }>(airUrl.toString());
     const current = air.current;
-    if (!current || !Number.isFinite(current.us_aqi)) return sendJson(response, 502, { error: 'No current AQI is available for this city.' });
+    if (!current || !isAqi(current.us_aqi)) return sendJson(response, 502, { error: 'No valid current AQI is available for this city.' });
 
     const aqi = Math.round(current.us_aqi as number);
     const forecast = (air.hourly?.time ?? []).map((time, index) => ({
       time,
       aqi: air.hourly?.us_aqi?.[index] == null ? null : Math.round(air.hourly.us_aqi[index] as number),
-    })).filter((entry): entry is { time: string; aqi: number } => entry.aqi !== null);
+    })).filter((entry): entry is { time: string; aqi: number } => isLocalTime(entry.time) && isAqi(entry.aqi));
     const cleanest = findCleanestWindow(air.hourly?.time, air.hourly?.us_aqi);
     response.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=1800');
     return sendJson(response, 200, {
@@ -140,7 +153,12 @@ export default async function handler(request: IncomingMessage, response: Server
       source: 'Open-Meteo / CAMS',
       forecast,
       cleanestWindow: cleanest ? { time: cleanest.time, aqi: Math.round(cleanest.value) } : null,
-      pollutants: { pm2_5: current.pm2_5 ?? null, pm10: current.pm10 ?? null, nitrogenDioxide: current.nitrogen_dioxide ?? null, ozone: current.ozone ?? null },
+      pollutants: {
+        pm2_5: safeConcentration(current.pm2_5),
+        pm10: safeConcentration(current.pm10),
+        nitrogenDioxide: safeConcentration(current.nitrogen_dioxide),
+        ozone: safeConcentration(current.ozone),
+      },
     });
   } catch (error) {
     console.error('Live air-quality lookup failed', error instanceof Error ? error.message : 'Unknown error');

@@ -9,11 +9,32 @@ import { createAirPlan, type HouseholdProfile, type Recommendation } from './dom
 import { describeGuidelineComparison, WHO_POLLUTANT_GUIDELINES, type PollutantGuideline } from './domain/pollutantGuidelines';
 
 const STORAGE_KEY = 'saans-saathi-profile-v1';
+const SENSITIVITIES = new Set<HouseholdProfile['sensitivity']>(['none', 'child', 'older-adult', 'asthma', 'pregnancy']);
+const COMMUTE_MODES = new Set<HouseholdProfile['commute']>(['walk', 'cycle', 'public', 'car', 'work-home']);
+
+function normalizeProfile(value: unknown): HouseholdProfile {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return DEFAULT_PROFILE;
+  const input = value as Record<string, unknown>;
+  const city = typeof input.city === 'string' && input.city.trim().length >= 2 && input.city.trim().length <= 80
+    ? input.city.trim()
+    : DEFAULT_PROFILE.city;
+  return {
+    city,
+    sensitivity: SENSITIVITIES.has(input.sensitivity as HouseholdProfile['sensitivity'])
+      ? input.sensitivity as HouseholdProfile['sensitivity']
+      : DEFAULT_PROFILE.sensitivity,
+    commute: COMMUTE_MODES.has(input.commute as HouseholdProfile['commute'])
+      ? input.commute as HouseholdProfile['commute']
+      : DEFAULT_PROFILE.commute,
+    hasPurifier: typeof input.hasPurifier === 'boolean' ? input.hasPurifier : DEFAULT_PROFILE.hasPurifier,
+    cooksWithGas: typeof input.cooksWithGas === 'boolean' ? input.cooksWithGas : DEFAULT_PROFILE.cooksWithGas,
+  };
+}
 
 function loadProfile(): HouseholdProfile {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? { ...DEFAULT_PROFILE, ...JSON.parse(stored) } : DEFAULT_PROFILE;
+    return stored ? normalizeProfile(JSON.parse(stored)) : DEFAULT_PROFILE;
   } catch {
     return DEFAULT_PROFILE;
   }

@@ -13,13 +13,22 @@ export interface LiveAirQuality {
 }
 
 function isNullableNumber(value: unknown): value is number | null {
-  return value === null || (typeof value === 'number' && Number.isFinite(value));
+  return value === null || (typeof value === 'number' && Number.isFinite(value) && value >= 0);
+}
+
+function isAqi(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 500;
+}
+
+function isLocalForecastTime(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return false;
+  return Number.isFinite(Date.parse(`${value}:00Z`));
 }
 
 function isForecastPoint(value: unknown): value is { time: string; aqi: number } {
   if (typeof value !== 'object' || value === null) return false;
   const point = value as Record<string, unknown>;
-  return typeof point.time === 'string' && typeof point.aqi === 'number' && Number.isFinite(point.aqi);
+  return isLocalForecastTime(point.time) && isAqi(point.aqi);
 }
 
 export function isLiveAirQuality(value: unknown): value is LiveAirQuality {
@@ -30,8 +39,7 @@ export function isLiveAirQuality(value: unknown): value is LiveAirQuality {
 
   return typeof reading.city === 'string'
     && typeof reading.requestedCity === 'string'
-    && typeof reading.aqi === 'number'
-    && Number.isFinite(reading.aqi)
+    && isAqi(reading.aqi)
     && typeof reading.category === 'string'
     && (typeof reading.dominantPollutant === 'string' || reading.dominantPollutant === null)
     && typeof reading.indexName === 'string'

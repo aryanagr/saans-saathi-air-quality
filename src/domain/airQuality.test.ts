@@ -18,9 +18,9 @@ describe('classifyAqi', () => {
     expect(classifyAqi(aqi).level).toBe(expected);
   });
 
-  it('fails safely for a non-finite AQI instead of treating it as hazardous', () => {
-    expect(classifyAqi(Number.NaN)).toMatchObject({ level: 'good', label: 'Good' });
-    expect(createAirPlan(Number.NaN, profile).level).toBe('good');
+  it('fails closed for a non-finite AQI instead of presenting clean-air guidance', () => {
+    expect(classifyAqi(Number.NaN)).toMatchObject({ level: 'severe', label: 'Hazardous' });
+    expect(createAirPlan(Number.NaN, profile).level).toBe('severe');
   });
 });
 

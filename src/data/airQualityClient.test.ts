@@ -14,6 +14,10 @@ const invalidReadings: Array<{ name: string; reading: unknown }> = [
   { name: 'non-finite forecast values', reading: { ...validReading, forecast: [{ time: 'soon', aqi: Number.NaN }] } },
   { name: 'non-numeric pollutants', reading: { ...validReading, pollutants: { ...validReading.pollutants, pm2_5: '42' } } },
   { name: 'malformed cleanest windows', reading: { ...validReading, cleanestWindow: { time: 123, aqi: 110 } } },
+  { name: 'out-of-range current AQI', reading: { ...validReading, aqi: 900 } },
+  { name: 'out-of-range forecast AQI', reading: { ...validReading, forecast: [{ time: '2026-11-18T22:00', aqi: -1 }] } },
+  { name: 'malformed forecast times', reading: { ...validReading, forecast: [{ time: 'soon', aqi: 100 }] } },
+  { name: 'negative pollutant concentrations', reading: { ...validReading, pollutants: { ...validReading.pollutants, pm2_5: -3 } } },
 ];
 
 describe('air-quality client boundary', () => {

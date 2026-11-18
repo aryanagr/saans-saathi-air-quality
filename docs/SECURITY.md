@@ -11,7 +11,7 @@
 - City input uses an allowlist pattern, whitespace normalization, and an 80-character limit.
 - Assistant questions are limited to 500 characters and request bodies to 8 KB.
 - Assistant requests require JSON, reject oversized declared bodies before reading them, and are throttled to 10 requests per client per minute on each warm function instance.
-- Client-supplied assistant context is reduced to an explicit allowlist of bounded air-quality and household fields before it reaches Gemini.
+- Client-supplied assistant context is reduced to an explicit allowlist of bounded air-quality and household fields before it reaches Gemini; enum-like values are validated and the AQI category is derived server-side.
 - External requests have strict timeouts and fixed provider origins, preventing user-controlled SSRF destinations.
 - Provider errors are normalized; secrets, stack traces, and raw internal errors are not returned to users.
 - `GEMINI_API_KEY` is read only by the Vercel function and is never included in the client bundle.
