@@ -11,6 +11,26 @@ type CurrentAir = {
 };
 
 type HourlyAir = { time?: string[]; us_aqi?: Array<number | null> };
+type Location = { name: string; latitude: number; longitude: number; admin1?: string; country?: string };
+
+const KNOWN_CITIES: Record<string, Location> = {
+  'new delhi': { name: 'New Delhi', latitude: 28.6139, longitude: 77.209, admin1: 'Delhi', country: 'India' },
+  delhi: { name: 'Delhi', latitude: 28.6139, longitude: 77.209, country: 'India' },
+  mumbai: { name: 'Mumbai', latitude: 19.076, longitude: 72.8777, admin1: 'Maharashtra', country: 'India' },
+  bengaluru: { name: 'Bengaluru', latitude: 12.9716, longitude: 77.5946, admin1: 'Karnataka', country: 'India' },
+  kolkata: { name: 'Kolkata', latitude: 22.5726, longitude: 88.3639, admin1: 'West Bengal', country: 'India' },
+  lucknow: { name: 'Lucknow', latitude: 26.8467, longitude: 80.9462, admin1: 'Uttar Pradesh', country: 'India' },
+  chennai: { name: 'Chennai', latitude: 13.0827, longitude: 80.2707, admin1: 'Tamil Nadu', country: 'India' },
+  hyderabad: { name: 'Hyderabad', latitude: 17.385, longitude: 78.4867, admin1: 'Telangana', country: 'India' },
+  pune: { name: 'Pune', latitude: 18.5204, longitude: 73.8567, admin1: 'Maharashtra', country: 'India' },
+  ahmedabad: { name: 'Ahmedabad', latitude: 23.0225, longitude: 72.5714, admin1: 'Gujarat', country: 'India' },
+  jaipur: { name: 'Jaipur', latitude: 26.9124, longitude: 75.7873, admin1: 'Rajasthan', country: 'India' },
+  chandigarh: { name: 'Chandigarh', latitude: 30.7333, longitude: 76.7794, country: 'India' },
+  gurugram: { name: 'Gurugram', latitude: 28.4595, longitude: 77.0266, admin1: 'Haryana', country: 'India' },
+  noida: { name: 'Noida', latitude: 28.5355, longitude: 77.391, admin1: 'Uttar Pradesh', country: 'India' },
+};
+
+export function resolveKnownCity(city: string) { return KNOWN_CITIES[city.toLocaleLowerCase('en')]; }
 
 export function findCleanestWindow(times: string[] = [], values: Array<number | null> = []) {
   const candidates = times.map((time, index) => ({ time, value: values[index] }))
@@ -74,13 +94,16 @@ export default async function handler(request: IncomingMessage, response: Server
   if (!city) return sendJson(response, 400, { error: 'Enter a valid city name.' });
 
   try {
-    const geocodeUrl = new URL('https://geocoding-api.open-meteo.com/v1/search');
-    geocodeUrl.searchParams.set('name', city);
-    geocodeUrl.searchParams.set('count', '1');
-    geocodeUrl.searchParams.set('language', 'en');
-    geocodeUrl.searchParams.set('format', 'json');
-    const geocode = await fetchJson<{ results?: Array<{ name: string; latitude: number; longitude: number; admin1?: string; country?: string }> }>(geocodeUrl.toString());
-    const location = geocode.results?.[0];
+    let location = resolveKnownCity(city);
+    if (!location) {
+      const geocodeUrl = new URL('https://geocoding-api.open-meteo.com/v1/search');
+      geocodeUrl.searchParams.set('name', city);
+      geocodeUrl.searchParams.set('count', '1');
+      geocodeUrl.searchParams.set('language', 'en');
+      geocodeUrl.searchParams.set('format', 'json');
+      const geocode = await fetchJson<{ results?: Location[] }>(geocodeUrl.toString());
+      location = geocode.results?.[0];
+    }
     if (!location) return sendJson(response, 404, { error: 'City not found.' });
 
     const airUrl = new URL('https://air-quality-api.open-meteo.com/v1/air-quality');

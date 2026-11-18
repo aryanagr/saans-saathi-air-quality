@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+@font-face { font-family: 'Bricolage Grotesque'; src: url('/fonts/bricolage-grotesque.woff2') format('woff2'); font-weight: 500 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Source Sans 3'; src: url('/fonts/source-sans-3.woff2') format('woff2'); font-weight: 400 700; font-style: normal; font-display: swap; }
 
 :root {
   font-family: 'Source Sans 3', system-ui, sans-serif;
@@ -188,7 +189,7 @@ footer p { margin: 0; }
 @media (max-width: 860px) {
   nav { display: none; }
   .aqi-hero { grid-template-columns: 1fr; grid-template-rows: auto auto; padding-inline: clamp(24px, 7vw, 60px); }
-  .hero-content { padding-block: 50px; }
+  .hero-content { min-height: 560px; padding-block: 50px; }
   .quick-guidance { margin-inline: calc(clamp(24px, 7vw, 60px) * -1); padding: 34px clamp(24px, 7vw, 60px); border: 0; }
   .quick-guidance::before { position: static; }
   .quick-guidance > svg { display: none; }

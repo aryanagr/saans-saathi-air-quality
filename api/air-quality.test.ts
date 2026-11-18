@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { findCleanestWindow, getDominantPollutant, getUsAqiCategory, localTimeToUtc, validateCity } from './air-quality';
+import { findCleanestWindow, getDominantPollutant, getUsAqiCategory, localTimeToUtc, resolveKnownCity, validateCity } from './air-quality';
 
 describe('live air-quality API helpers', () => {
   it('normalizes safe city names', () => {
@@ -32,5 +32,10 @@ describe('live air-quality API helpers', () => {
 
   it('converts provider-local timestamps to UTC', () => {
     expect(localTimeToUtc('2026-11-18T21:30', 19_800)).toBe('2026-11-18T16:00:00.000Z');
+  });
+
+  it('resolves common cities without a geocoding request', () => {
+    expect(resolveKnownCity('New Delhi')).toMatchObject({ latitude: 28.6139, longitude: 77.209 });
+    expect(resolveKnownCity('São Paulo')).toBeUndefined();
   });
 });

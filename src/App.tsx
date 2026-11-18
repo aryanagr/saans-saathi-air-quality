@@ -118,7 +118,7 @@ export default function App() {
       <main id="main">
         <section className={`aqi-hero level-${plan.level}`} aria-labelledby="aqi-heading">
           <div className="hero-content">
-            <p className="location"><MapPin aria-hidden="true" /> {liveReading?.city ?? profile.city} <span>{updatedLabel}</span></p>
+            <p className="location"><MapPin aria-hidden="true" /> {profile.city} <span>{updatedLabel}</span></p>
             <p className={`data-status data-${liveStatus}`} aria-live="polite"><span aria-hidden="true" />{liveMessage}</p>
             <div className="aqi-reading">
               <div className="aqi-number" aria-label={`Air quality index ${aqi}`}><span>AQI</span>{aqi}</div>
