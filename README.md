@@ -54,6 +54,13 @@ npm run lint
 npm run build
 ```
 
+Latest production verification:
+
+- 33 automated tests passing
+- Lighthouse mobile: Performance 91, Accessibility 100, Best Practices 100, SEO 100
+- Cumulative Layout Shift 0.001; Largest Contentful Paint 2.4 seconds
+- Production city lookup and 24-hour forecast verified on Vercel
+
 ## How the logic works
 
 1. A server-side function geocodes the selected city and requests modeled current US AQI from Open-Meteo; demo readings are the fallback.

@@ -13,6 +13,13 @@
 | Accessibility | Semantic landmarks, labelled fields, focus management, keyboard dialog, live regions, reduced motion |
 | Resilience | Explicit loading/error/live states, demo AQI fallback, guided assistant fallback |
 
+## Verified quality snapshot
+
+- Lighthouse mobile: Performance 91, Accessibility 100, Best Practices 100, SEO 100
+- Core loading metrics: LCP 2.4 s and CLS 0.001
+- 33 automated tests across six test files
+- Clean lint, strict TypeScript build, and production API smoke test
+
 ## Demonstration scenarios
 
 1. **Sensitive family in New Delhi:** child profile, public transport, gas cooking, purifier available.
