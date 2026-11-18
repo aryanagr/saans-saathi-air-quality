@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { findCleanestWindow, getDominantPollutant, getUsAqiCategory, validateCity } from './air-quality';
+import { findCleanestWindow, getDominantPollutant, getUsAqiCategory, localTimeToUtc, validateCity } from './air-quality';
 
 describe('live air-quality API helpers', () => {
   it('normalizes safe city names', () => {
@@ -28,5 +28,9 @@ describe('live air-quality API helpers', () => {
       ['2026-11-18T04:00', '2026-11-18T09:00', '2026-11-18T15:00'],
       [30, 82, 61],
     )).toEqual({ time: '2026-11-18T15:00', value: 61 });
+  });
+
+  it('converts provider-local timestamps to UTC', () => {
+    expect(localTimeToUtc('2026-11-18T21:30', 19_800)).toBe('2026-11-18T16:00:00.000Z');
   });
 });

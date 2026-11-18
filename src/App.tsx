@@ -64,9 +64,13 @@ export default function App() {
     };
   }, [profile.city]);
 
-  const updatedLabel = liveReading
-    ? `Updated ${new Intl.DateTimeFormat('en-IN', { hour: 'numeric', minute: '2-digit' }).format(new Date(liveReading.updatedAt))}`
+  const updatedDate = liveReading ? new Date(liveReading.updatedAt) : null;
+  const updatedLabel = updatedDate && Number.isFinite(updatedDate.getTime())
+    ? `Updated ${new Intl.DateTimeFormat('en-IN', { hour: 'numeric', minute: '2-digit' }).format(updatedDate)}`
     : 'Illustrative reading';
+  const familyGuidance = profile.sensitivity === 'none'
+    ? 'No extra sensitivity is selected. Adjust the household profile if someone needs additional care.'
+    : `Keep outdoor exertion light. Extra care is enabled for ${profile.sensitivity === 'older-adult' ? 'an older adult' : profile.sensitivity === 'asthma' ? 'a person with asthma' : profile.sensitivity === 'pregnancy' ? 'a pregnant person' : 'a child'}.`;
 
   useEffect(() => {
     if (!profileOpen) return;
@@ -131,7 +135,7 @@ export default function App() {
           </div>
           <aside className="quick-guidance" aria-label="Immediate health guidance">
             <ShieldCheck aria-hidden="true" />
-            <div><strong>For your family</strong><p>Keep outdoor exertion light. A child is included in your household profile.</p></div>
+            <div><strong>For your family</strong><p>{familyGuidance}</p></div>
           </aside>
         </section>
 

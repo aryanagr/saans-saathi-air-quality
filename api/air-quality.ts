@@ -21,6 +21,11 @@ export function findCleanestWindow(times: string[] = [], values: Array<number | 
   return candidates.sort((a, b) => a.value - b.value)[0] ?? null;
 }
 
+export function localTimeToUtc(localTime: string, utcOffsetSeconds: number) {
+  const localAsUtc = Date.parse(`${localTime}:00Z`);
+  return new Date(localAsUtc - utcOffsetSeconds * 1_000).toISOString();
+}
+
 export function validateCity(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   const city = value.trim().replace(/\s+/g, ' ');
@@ -81,7 +86,7 @@ export default async function handler(request: IncomingMessage, response: Server
     const airUrl = new URL('https://air-quality-api.open-meteo.com/v1/air-quality');
     airUrl.searchParams.set('latitude', String(location.latitude));
     airUrl.searchParams.set('longitude', String(location.longitude));
-    airUrl.searchParams.set('timezone', 'GMT');
+    airUrl.searchParams.set('timezone', 'auto');
     airUrl.searchParams.set('forecast_hours', '24');
     airUrl.searchParams.set('hourly', 'us_aqi');
     airUrl.searchParams.set('current', [
@@ -89,7 +94,7 @@ export default async function handler(request: IncomingMessage, response: Server
       'us_aqi_pm2_5', 'us_aqi_pm10', 'us_aqi_nitrogen_dioxide', 'us_aqi_carbon_monoxide',
       'us_aqi_sulphur_dioxide', 'us_aqi_ozone',
     ].join(','));
-    const air = await fetchJson<{ current?: CurrentAir; hourly?: HourlyAir }>(airUrl.toString());
+    const air = await fetchJson<{ current?: CurrentAir; hourly?: HourlyAir; utc_offset_seconds?: number }>(airUrl.toString());
     const current = air.current;
     if (!current || !Number.isFinite(current.us_aqi)) return sendJson(response, 502, { error: 'No current AQI is available for this city.' });
 
@@ -107,7 +112,7 @@ export default async function handler(request: IncomingMessage, response: Server
       category: getUsAqiCategory(aqi),
       dominantPollutant: getDominantPollutant(current),
       indexName: 'US AQI (modeled)',
-      updatedAt: current.time ? `${current.time}:00Z` : new Date().toISOString(),
+      updatedAt: current.time ? localTimeToUtc(current.time, air.utc_offset_seconds ?? 0) : new Date().toISOString(),
       source: 'Open-Meteo / CAMS',
       forecast,
       cleanestWindow: cleanest ? { time: cleanest.time, aqi: Math.round(cleanest.value) } : null,

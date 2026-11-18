@@ -30,4 +30,12 @@ describe('App', () => {
     fireEvent.click(closeButton);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('updates family guidance from the household profile', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /household/i }));
+    fireEvent.change(screen.getByLabelText(/who needs extra care/i), { target: { value: 'none' } });
+    fireEvent.click(screen.getByRole('button', { name: /update my plan/i }));
+    expect(screen.getByText(/no extra sensitivity is selected/i)).toBeInTheDocument();
+  });
 });
