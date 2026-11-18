@@ -16,8 +16,11 @@ function formatHour(value: string) {
 export function AqiChart({ forecast = [], cleanestWindow, isLive }: AqiChartProps) {
   const visible = forecast.filter((_, index) => index % 4 === 0).slice(0, 6);
   const values = visible.map((entry) => entry.aqi);
-  const min = Math.min(...values, 0);
-  const max = Math.max(...values, 100);
+  const lowest = values.length ? Math.min(...values) : 0;
+  const highest = values.length ? Math.max(...values) : 100;
+  const padding = Math.max(6, (highest - lowest) * 0.35);
+  const min = Math.max(0, lowest - padding);
+  const max = highest + padding;
   const range = Math.max(1, max - min);
   const points = visible.map((entry, index) => {
     const x = visible.length === 1 ? 50 : (index / (visible.length - 1)) * 100;
