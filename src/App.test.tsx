@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 
@@ -28,6 +28,27 @@ describe('App', () => {
     fireEvent.click(button);
     expect(button).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByText(/1 of \d+ done/i)).toBeInTheDocument();
+  });
+
+  it('does not count a completed action after that recommendation is removed', () => {
+    render(<App />);
+    const cookingAction = screen.getByRole('heading', { name: /reduce cooking smoke/i }).closest('article');
+    expect(cookingAction).not.toBeNull();
+    fireEvent.click(within(cookingAction as HTMLElement).getByRole('button', { name: /mark done/i }));
+    expect(screen.getByText(/1 of 5 done/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /household/i }));
+    fireEvent.click(screen.getByRole('checkbox', { name: /we cook with gas/i }));
+
+    expect(screen.queryByRole('heading', { name: /reduce cooking smoke/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/0 of 4 done/i)).toBeInTheDocument();
+    const impact = document.querySelector('#impact');
+    expect(impact).not.toBeNull();
+    expect(within(impact as HTMLElement).getByText(/protective actions completed/i)).toHaveTextContent(/^0/);
+
+    fireEvent.click(screen.getByRole('checkbox', { name: /we cook with gas/i }));
+    expect(screen.getByRole('heading', { name: /reduce cooking smoke/i })).toBeInTheDocument();
+    expect(screen.getByText(/0 of 5 done/i)).toBeInTheDocument();
   });
 
   it('opens and closes the household profile', () => {

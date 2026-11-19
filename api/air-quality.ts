@@ -1,4 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { getUsAqiCategory } from '../shared/airQualityContract';
+
+export { getUsAqiCategory } from '../shared/airQualityContract';
 
 const CITY_PATTERN = /^[\p{L}\p{M}\d .,'()-]+$/u;
 const REQUEST_TIMEOUT_MS = 8_000;
@@ -65,15 +68,6 @@ export function validateCity(value: unknown): string | null {
   return city.length >= 2 && city.length <= 80 && CITY_PATTERN.test(city) ? city : null;
 }
 
-export function getUsAqiCategory(aqi: number): string {
-  if (aqi <= 50) return 'Good';
-  if (aqi <= 100) return 'Moderate';
-  if (aqi <= 150) return 'Unhealthy for sensitive groups';
-  if (aqi <= 200) return 'Unhealthy';
-  if (aqi <= 300) return 'Very unhealthy';
-  return 'Hazardous';
-}
-
 export function getDominantPollutant(current: CurrentAir): string | null {
   const components: Array<[string, number | undefined]> = [
     ['PM2.5', current.us_aqi_pm2_5], ['PM10', current.us_aqi_pm10],
@@ -108,7 +102,7 @@ export default async function handler(request: IncomingMessage, response: Server
   if (!city) return sendJson(response, 400, { error: 'Enter a valid city name.' });
 
   try {
-    let location = resolveKnownCity(city);
+    let location: Location | undefined = resolveKnownCity(city);
     if (!location) {
       const geocodeUrl = new URL('https://geocoding-api.open-meteo.com/v1/search');
       geocodeUrl.searchParams.set('name', city);

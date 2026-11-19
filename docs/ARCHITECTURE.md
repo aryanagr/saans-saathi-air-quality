@@ -35,6 +35,6 @@ AQI responses are cached at the edge for 15 minutes with a 30-minute stale-while
 
 ## Quality controls
 
-- Strict TypeScript and ESLint run alongside 66 automated tests.
+- Strict TypeScript covers both browser and server-function code, and ESLint runs alongside 83 automated tests.
 - Dependencies are pinned and installed from the committed lockfile for reproducible builds.
 - The complete test, lint, and production-build gate is available through `npm run verify`.

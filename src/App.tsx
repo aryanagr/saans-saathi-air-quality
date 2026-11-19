@@ -21,6 +21,10 @@ export default function App() {
   const profileTrigger = useRef<HTMLElement | null>(null);
   const aqi = liveReading?.aqi ?? CITY_AQI[profile.city] ?? 180;
   const plan = useMemo(() => createAirPlan(aqi, profile), [aqi, profile]);
+  const activeCompleted = useMemo(() => {
+    const recommendationIds = new Set(plan.recommendations.map((item) => item.id));
+    return completed.filter((id) => recommendationIds.has(id));
+  }, [completed, plan.recommendations]);
 
   useEffect(() => {
     saveProfile(profile);
@@ -80,13 +84,17 @@ export default function App() {
   };
 
   const updateProfile = (nextProfile: HouseholdProfile) => {
-    if (nextProfile.city.trim() !== profile.city.trim()) {
+    const cityChanged = nextProfile.city.trim() !== profile.city.trim();
+    if (cityChanged) {
       setLiveReading(null);
       setLiveStatus('loading');
       setLiveMessage(nextProfile.city.trim().length < 2
         ? 'Enter at least 2 characters to check current conditions.'
         : 'Checking current conditions…');
     }
+    const nextAqi = cityChanged ? CITY_AQI[nextProfile.city] ?? 180 : aqi;
+    const recommendationIds = new Set(createAirPlan(nextAqi, nextProfile).recommendations.map((item) => item.id));
+    setCompleted((current) => current.filter((id) => recommendationIds.has(id)));
     setProfile(nextProfile);
   };
 
@@ -139,7 +147,7 @@ export default function App() {
         <div className="content-wrap">
           <CurrentConditions reading={liveReading} />
 
-          <ActionPlan plan={plan} completed={completed} onToggle={toggleCompleted} />
+          <ActionPlan plan={plan} completed={activeCompleted} onToggle={toggleCompleted} />
 
           <AqiChart currentAqi={aqi} forecast={liveReading?.forecast} cleanestWindow={liveReading?.cleanestWindow} isLive={liveStatus === 'live'} />
 
@@ -152,7 +160,7 @@ export default function App() {
             profile,
           }} />
 
-          <ImpactSummary plan={plan} completedCount={completed.length} />
+          <ImpactSummary plan={plan} completedCount={activeCompleted.length} />
         </div>
       </main>
 

@@ -1,9 +1,8 @@
 import type { HouseholdProfile } from '../domain/airQuality';
+import { isCommuteMode, isSensitivity } from '../../shared/airQualityContract';
 import { DEFAULT_PROFILE } from './demo';
 
 const STORAGE_KEY = 'saans-saathi-profile-v1';
-const SENSITIVITIES = new Set<HouseholdProfile['sensitivity']>(['none', 'child', 'older-adult', 'asthma', 'pregnancy']);
-const COMMUTE_MODES = new Set<HouseholdProfile['commute']>(['walk', 'cycle', 'public', 'car', 'work-home']);
 
 export function normalizeProfile(value: unknown): HouseholdProfile {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return DEFAULT_PROFILE;
@@ -12,11 +11,11 @@ export function normalizeProfile(value: unknown): HouseholdProfile {
 
   return {
     city: candidateCity.length >= 2 && candidateCity.length <= 80 ? candidateCity : DEFAULT_PROFILE.city,
-    sensitivity: SENSITIVITIES.has(input.sensitivity as HouseholdProfile['sensitivity'])
-      ? input.sensitivity as HouseholdProfile['sensitivity']
+    sensitivity: isSensitivity(input.sensitivity)
+      ? input.sensitivity
       : DEFAULT_PROFILE.sensitivity,
-    commute: COMMUTE_MODES.has(input.commute as HouseholdProfile['commute'])
-      ? input.commute as HouseholdProfile['commute']
+    commute: isCommuteMode(input.commute)
+      ? input.commute
       : DEFAULT_PROFILE.commute,
     hasPurifier: typeof input.hasPurifier === 'boolean' ? input.hasPurifier : DEFAULT_PROFILE.hasPurifier,
     cooksWithGas: typeof input.cooksWithGas === 'boolean' ? input.cooksWithGas : DEFAULT_PROFILE.cooksWithGas,

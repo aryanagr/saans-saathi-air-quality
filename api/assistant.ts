@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { getUsAqiCategory, isCommuteMode, isSensitivity } from '../shared/airQualityContract';
 
 const MAX_BODY_BYTES = 8_000;
 const MAX_QUESTION_LENGTH = 500;
@@ -6,8 +7,6 @@ const MAX_ANSWER_LENGTH = 4_000;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_REQUESTS = 10;
 const MAX_RATE_LIMIT_CLIENTS = 5_000;
-const SENSITIVITIES = new Set(['none', 'child', 'older-adult', 'asthma', 'pregnancy']);
-const COMMUTE_MODES = new Set(['walk', 'cycle', 'public', 'car', 'work-home']);
 const POLLUTANTS = new Set(['PM2.5', 'PM10', 'NO₂', 'CO', 'SO₂', 'O₃']);
 
 type RateLimitEntry = { count: number; resetAt: number };
@@ -43,15 +42,6 @@ function safeAqi(value: unknown): number | undefined {
     : undefined;
 }
 
-function categoryForAqi(aqi: number): string {
-  if (aqi <= 50) return 'Good';
-  if (aqi <= 100) return 'Moderate';
-  if (aqi <= 150) return 'Unhealthy for sensitive groups';
-  if (aqi <= 200) return 'Unhealthy';
-  if (aqi <= 300) return 'Very unhealthy';
-  return 'Hazardous';
-}
-
 function allowedText(value: unknown, allowed: Set<string>): string | undefined {
   return typeof value === 'string' && allowed.has(value) ? value : undefined;
 }
@@ -66,7 +56,7 @@ export function normalizeAssistantContext(value: unknown): AssistantContext {
   if (city) output.city = city;
   if (aqi !== undefined) {
     output.aqi = aqi;
-    output.category = categoryForAqi(aqi);
+    output.category = getUsAqiCategory(aqi);
   }
   if (input.dominantPollutant === null) output.dominantPollutant = null;
   else if (dominantPollutant) output.dominantPollutant = dominantPollutant;
@@ -82,8 +72,8 @@ export function normalizeAssistantContext(value: unknown): AssistantContext {
     const profile = input.profile as Record<string, unknown>;
     const normalizedProfile: NonNullable<AssistantContext['profile']> = {};
     const profileCity = safeText(profile.city, 80);
-    const sensitivity = allowedText(profile.sensitivity, SENSITIVITIES);
-    const commute = allowedText(profile.commute, COMMUTE_MODES);
+    const sensitivity = isSensitivity(profile.sensitivity) ? profile.sensitivity : undefined;
+    const commute = isCommuteMode(profile.commute) ? profile.commute : undefined;
     if (profileCity) normalizedProfile.city = profileCity;
     if (sensitivity) normalizedProfile.sensitivity = sensitivity;
     if (commute) normalizedProfile.commute = commute;

@@ -17,7 +17,7 @@
 
 - Lighthouse mobile: Performance 91, Accessibility 100, Best Practices 100, SEO 100
 - Core loading metrics: LCP 2.4 s and CLS 0.001
-- 66 automated tests across 11 test files
+- 83 automated tests across 13 test files
 - Unified `npm run verify` quality gate and reproducible lockfile-based installs
 - Clean lint, strict TypeScript build, and production API smoke test
 

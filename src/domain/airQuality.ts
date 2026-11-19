@@ -1,6 +1,7 @@
-export type AqiLevel = 'good' | 'satisfactory' | 'moderate' | 'poor' | 'very-poor' | 'severe';
-export type Sensitivity = 'none' | 'child' | 'older-adult' | 'asthma' | 'pregnancy';
-export type CommuteMode = 'walk' | 'cycle' | 'public' | 'car' | 'work-home';
+import { getUsAqiBand, normalizeUsAqi } from '../../shared/airQualityContract';
+import type { AqiLevel, CommuteMode, Sensitivity } from '../../shared/airQualityContract';
+
+export type { AqiLevel, CommuteMode, Sensitivity } from '../../shared/airQualityContract';
 
 export interface HouseholdProfile {
   city: string;
@@ -28,24 +29,8 @@ export interface AirPlan {
   emissionReduction: number;
 }
 
-const AQI_BANDS: Array<{ max: number; level: AqiLevel; label: string }> = [
-  { max: 50, level: 'good', label: 'Good' },
-  { max: 100, level: 'satisfactory', label: 'Moderate' },
-  { max: 150, level: 'moderate', label: 'Unhealthy for sensitive groups' },
-  { max: 200, level: 'poor', label: 'Unhealthy' },
-  { max: 300, level: 'very-poor', label: 'Very unhealthy' },
-  { max: 500, level: 'severe', label: 'Hazardous' },
-];
-
-function normalizeAqi(aqi: number) {
-  // Unknown air quality must never be translated into clean-air guidance.
-  if (!Number.isFinite(aqi)) return 500;
-  return Math.max(0, Math.min(500, Math.round(aqi)));
-}
-
 export function classifyAqi(aqi: number) {
-  const normalized = normalizeAqi(aqi);
-  return AQI_BANDS.find((band) => normalized <= band.max) ?? AQI_BANDS[AQI_BANDS.length - 1];
+  return getUsAqiBand(aqi);
 }
 
 function isSensitive(profile: HouseholdProfile) {
@@ -53,7 +38,7 @@ function isSensitive(profile: HouseholdProfile) {
 }
 
 export function createAirPlan(aqi: number, profile: HouseholdProfile): AirPlan {
-  const currentAqi = normalizeAqi(aqi);
+  const currentAqi = normalizeUsAqi(aqi);
   const band = classifyAqi(currentAqi);
   const hazardous = currentAqi > 300;
   const unhealthy = currentAqi > 150;

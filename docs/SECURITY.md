@@ -18,6 +18,8 @@
 - Gemini receives a bounded JSON context and explicit instructions to treat it as data, resist embedded instructions, avoid diagnosis, and preserve emergency escalation guidance.
 - Generated output is rendered as React text, never as raw HTML.
 - API responses disable MIME sniffing; assistant responses are non-cacheable and bounded in length.
+- Vercel applies a restrictive Content Security Policy to every route: scripts, styles, fonts, connections, and base URLs are limited to this application; plug-in content and third-party framing are blocked.
+- Deployment headers prevent MIME sniffing and clickjacking, limit cross-origin opener/resource access and referrer detail, and disable unused camera, microphone, geolocation, payment, and USB capabilities.
 - The deterministic safety engine remains authoritative when Gemini is unavailable or produces no usable response.
 
 ## Privacy
