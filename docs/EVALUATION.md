@@ -6,7 +6,7 @@
 | Smart assistance | Gemini explanation layer grounded in verified context, plus deterministic fallback |
 | Logical decision-making | Tested AQI thresholds and sensitivity-, commute-, purifier-, and fuel-aware rules |
 | Practical usability | Any-city search, WHO pollutant references, cleanest daytime window, checklist, direct impact |
-| Code quality | Separate provider, domain, UI, and assistant modules; strict TypeScript and linting |
+| Code quality | Focused provider, persistence, domain, feature-component, and assistant modules; strict TypeScript, linting, pinned dependencies, and a unified quality gate |
 | Security | Server-only secret, bounded inputs, fixed outbound origins, timeouts, safe text rendering |
 | Efficiency | 15-minute edge caching, debounced city lookup, compressed 42 KB hero image, no heavy AI SDK |
 | Testing | Boundary, malformed-response, recommendation, provider-normalization, assistant-fallback, and UI interaction tests |
@@ -17,7 +17,8 @@
 
 - Lighthouse mobile: Performance 91, Accessibility 100, Best Practices 100, SEO 100
 - Core loading metrics: LCP 2.4 s and CLS 0.001
-- 62 automated tests across 10 test files
+- 66 automated tests across 11 test files
+- Unified `npm run verify` quality gate and reproducible lockfile-based installs
 - Clean lint, strict TypeScript build, and production API smoke test
 
 ## Demonstration scenarios

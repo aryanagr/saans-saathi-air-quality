@@ -52,11 +52,13 @@ The model explains verified context; it does not control safety thresholds or re
 npm test
 npm run lint
 npm run build
+# or run all quality gates with npm run verify
 ```
 
 Latest production verification:
 
-- 62 automated tests passing across 10 test files
+- 66 automated tests passing across 11 test files
+- Reproducible, version-pinned dependencies and a single-command local quality gate
 - Lighthouse mobile: Performance 91, Accessibility 100, Best Practices 100, SEO 100
 - Cumulative Layout Shift 0.001; Largest Contentful Paint 2.4 seconds
 - Production city lookup and 24-hour forecast verified on Vercel
@@ -69,7 +71,7 @@ Latest production verification:
 4. Safety-critical recommendations are deterministic and covered by boundary tests.
 5. The interface explains the direct benefit and urgency of each action.
 
-The domain logic lives in `src/domain/airQuality.ts`, separate from React and data access. The server-side `api/air-quality.ts` function normalizes provider data before the browser receives it.
+The domain logic lives in `src/domain/airQuality.ts`, separate from React and data access. Focused UI components own the action plan, pollutant conditions, impact summary, chart, assistant, and profile. Profile validation and persistence live behind `src/data/profileStorage.ts`. The server-side `api/air-quality.ts` function normalizes provider data before the browser receives it.
 
 See [architecture](docs/ARCHITECTURE.md), [security and responsible AI](docs/SECURITY.md), and [evaluation mapping](docs/EVALUATION.md) for submission evidence.
 

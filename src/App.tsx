@@ -1,64 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Activity, ArrowRight, Bus, Check, HeartPulse, Home, Leaf, MapPin, Settings2, ShieldCheck, Sparkles, Wind } from 'lucide-react';
+import { ArrowRight, MapPin, Settings2, ShieldCheck, Wind } from 'lucide-react';
+import { ActionPlan } from './components/ActionPlan';
 import { AqiChart } from './components/AqiChart';
 import { AssistantPanel } from './components/AssistantPanel';
+import { CurrentConditions } from './components/CurrentConditions';
+import { ImpactSummary } from './components/ImpactSummary';
 import { ProfilePanel } from './components/ProfilePanel';
 import { fetchLiveAirQuality, type LiveAirQuality } from './data/airQualityClient';
-import { CITY_AQI, DEFAULT_PROFILE } from './data/demo';
-import { createAirPlan, type HouseholdProfile, type Recommendation } from './domain/airQuality';
-import { describeGuidelineComparison, WHO_POLLUTANT_GUIDELINES, type PollutantGuideline } from './domain/pollutantGuidelines';
-
-const STORAGE_KEY = 'saans-saathi-profile-v1';
-const SENSITIVITIES = new Set<HouseholdProfile['sensitivity']>(['none', 'child', 'older-adult', 'asthma', 'pregnancy']);
-const COMMUTE_MODES = new Set<HouseholdProfile['commute']>(['walk', 'cycle', 'public', 'car', 'work-home']);
-
-function normalizeProfile(value: unknown): HouseholdProfile {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) return DEFAULT_PROFILE;
-  const input = value as Record<string, unknown>;
-  const city = typeof input.city === 'string' && input.city.trim().length >= 2 && input.city.trim().length <= 80
-    ? input.city.trim()
-    : DEFAULT_PROFILE.city;
-  return {
-    city,
-    sensitivity: SENSITIVITIES.has(input.sensitivity as HouseholdProfile['sensitivity'])
-      ? input.sensitivity as HouseholdProfile['sensitivity']
-      : DEFAULT_PROFILE.sensitivity,
-    commute: COMMUTE_MODES.has(input.commute as HouseholdProfile['commute'])
-      ? input.commute as HouseholdProfile['commute']
-      : DEFAULT_PROFILE.commute,
-    hasPurifier: typeof input.hasPurifier === 'boolean' ? input.hasPurifier : DEFAULT_PROFILE.hasPurifier,
-    cooksWithGas: typeof input.cooksWithGas === 'boolean' ? input.cooksWithGas : DEFAULT_PROFILE.cooksWithGas,
-  };
-}
-
-function loadProfile(): HouseholdProfile {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? normalizeProfile(JSON.parse(stored)) : DEFAULT_PROFILE;
-  } catch {
-    return DEFAULT_PROFILE;
-  }
-}
-
-function RecommendationIcon({ item }: { item: Recommendation }) {
-  const Icon = item.category === 'indoor' ? Home : item.category === 'travel' ? Bus : Activity;
-  return <Icon aria-hidden="true" />;
-}
-
-function PollutantReading({ label, value, guideline }: { label: string; value: number | null | undefined; guideline: PollutantGuideline }) {
-  return (
-    <div className="pollutant-reading">
-      <span>{label}</span>
-      <strong>{value != null ? `${value} µg/m³` : '—'}</strong>
-      {value != null && (
-        <small>
-          <b>{describeGuidelineComparison(value, guideline)}</b>
-          WHO guideline: {guideline.value} µg/m³ ({guideline.averagingPeriod})
-        </small>
-      )}
-    </div>
-  );
-}
+import { CITY_AQI } from './data/demo';
+import { loadProfile, saveProfile } from './data/profileStorage';
+import { createAirPlan, type HouseholdProfile } from './domain/airQuality';
 
 export default function App() {
   const [profile, setProfile] = useState(loadProfile);
@@ -72,7 +23,7 @@ export default function App() {
   const plan = useMemo(() => createAirPlan(aqi, profile), [aqi, profile]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+    saveProfile(profile);
   }, [profile]);
 
   useEffect(() => {
@@ -186,47 +137,9 @@ export default function App() {
         </section>
 
         <div className="content-wrap">
-          <section className="reading-strip" aria-label="Current pollutant details">
-            <div><span>Dominant pollutant</span><strong>{liveReading?.dominantPollutant ?? 'Not available'}</strong></div>
-            <PollutantReading label="PM2.5" value={liveReading?.pollutants.pm2_5} guideline={WHO_POLLUTANT_GUIDELINES.pm2_5} />
-            <PollutantReading label="PM10" value={liveReading?.pollutants.pm10} guideline={WHO_POLLUTANT_GUIDELINES.pm10} />
-            <PollutantReading label="Ozone" value={liveReading?.pollutants.ozone} guideline={WHO_POLLUTANT_GUIDELINES.ozone} />
-            <p>WHO references use averaged exposure; current modeled snapshots are an early warning, not a direct compliance measurement. Concentrations can differ from nearby monitoring stations.</p>
-          </section>
+          <CurrentConditions reading={liveReading} />
 
-          <section id="plan" className="plan-section" aria-labelledby="plan-title">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow"><Sparkles aria-hidden="true" /> Personalised for your routine</p>
-                <h2 id="plan-title">Your air-smart plan for today</h2>
-                <p>Start with the highest-impact actions. Tap an item when it’s done.</p>
-              </div>
-              <span className="progress-copy" aria-live="polite">{completed.length} of {plan.recommendations.length} done</span>
-            </div>
-
-            <div className="recommendation-list">
-              {plan.recommendations.map((item, index) => {
-                const isDone = completed.includes(item.id);
-                return (
-                  <article className={`recommendation ${isDone ? 'is-done' : ''}`} key={item.id}>
-                    <div className="recommendation-icon"><RecommendationIcon item={item} /></div>
-                    <div className="recommendation-content">
-                      <div className="recommendation-meta">
-                        <span className={`priority priority-${item.priority}`}>{item.priority === 'now' ? 'Do now' : item.priority === 'today' ? 'Today' : 'Build the habit'}</span>
-                        <span>Action {index + 1}</span>
-                      </div>
-                      <h3>{item.title}</h3>
-                      <p>{item.detail}</p>
-                      <p className="impact-line"><Leaf aria-hidden="true" /><strong>Direct impact:</strong> {item.impact}</p>
-                    </div>
-                    <button className="complete-button" type="button" aria-pressed={isDone} onClick={() => toggleCompleted(item.id)}>
-                      <Check aria-hidden="true" /> {isDone ? 'Done' : 'Mark done'}
-                    </button>
-                  </article>
-                );
-              })}
-            </div>
-          </section>
+          <ActionPlan plan={plan} completed={completed} onToggle={toggleCompleted} />
 
           <AqiChart currentAqi={aqi} forecast={liveReading?.forecast} cleanestWindow={liveReading?.cleanestWindow} isLive={liveStatus === 'live'} />
 
@@ -239,23 +152,7 @@ export default function App() {
             profile,
           }} />
 
-          <section id="impact" className="impact-section" aria-labelledby="impact-title">
-            <div className="section-heading compact">
-              <div><p className="eyebrow">Why these choices matter</p><h2 id="impact-title">Your estimated daily impact</h2></div>
-              <span className="estimate-note">Illustrative estimate</span>
-            </div>
-            <div className="impact-grid">
-              <article><HeartPulse aria-hidden="true" /><p><strong>{plan.exposureReduction}%</strong> potential reduction in pollution exposure</p><span>Compared with an unchanged outdoor routine</span></article>
-              <article><Leaf aria-hidden="true" /><p><strong>{plan.emissionReduction.toFixed(1)} kg</strong> potential CO₂e avoided</p><span>Based on your selected commute choice</span></article>
-              <article><Check aria-hidden="true" /><p><strong>{completed.length}</strong> protective actions completed</p><span>Small actions add up across your household</span></article>
-            </div>
-            <p className="method-note">Estimates are educational, not measurements. Actual impact varies with route, building ventilation, equipment, and local conditions.</p>
-          </section>
-
-          <section className="safety-note" aria-labelledby="safety-title">
-            <ShieldCheck aria-hidden="true" />
-            <div><h2 id="safety-title">Know when to seek help</h2><p>This assistant provides general environmental guidance, not medical advice. If anyone has severe breathlessness, chest pain, confusion, or blue lips, seek urgent medical care.</p></div>
-          </section>
+          <ImpactSummary plan={plan} completedCount={completed.length} />
         </div>
       </main>
 
