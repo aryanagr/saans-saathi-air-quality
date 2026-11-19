@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { getUsAqiCategory, isCommuteMode, isSensitivity } from '../shared/airQualityContract';
+import { getUsAqiCategory, isCommuteMode, isSensitivity } from '../shared/airQualityContract.js';
 
 const MAX_BODY_BYTES = 8_000;
 const MAX_QUESTION_LENGTH = 500;

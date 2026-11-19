@@ -1,5 +1,5 @@
 import type { HouseholdProfile } from '../domain/airQuality';
-import { isCommuteMode, isSensitivity } from '../../shared/airQualityContract';
+import { isCommuteMode, isSensitivity } from '../../shared/airQualityContract.js';
 import { DEFAULT_PROFILE } from './demo';
 
 const STORAGE_KEY = 'saans-saathi-profile-v1';

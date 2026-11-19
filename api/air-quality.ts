@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { getUsAqiCategory } from '../shared/airQualityContract';
+import { getUsAqiCategory } from '../shared/airQualityContract.js';
 
-export { getUsAqiCategory } from '../shared/airQualityContract';
+export { getUsAqiCategory } from '../shared/airQualityContract.js';
 
 const CITY_PATTERN = /^[\p{L}\p{M}\d .,'()-]+$/u;
 const REQUEST_TIMEOUT_MS = 8_000;

@@ -1,7 +1,7 @@
-import { getUsAqiBand, normalizeUsAqi } from '../../shared/airQualityContract';
-import type { AqiLevel, CommuteMode, Sensitivity } from '../../shared/airQualityContract';
+import { getUsAqiBand, normalizeUsAqi } from '../../shared/airQualityContract.js';
+import type { AqiLevel, CommuteMode, Sensitivity } from '../../shared/airQualityContract.js';
 
-export type { AqiLevel, CommuteMode, Sensitivity } from '../../shared/airQualityContract';
+export type { AqiLevel, CommuteMode, Sensitivity } from '../../shared/airQualityContract.js';
 
 export interface HouseholdProfile {
   city: string;
